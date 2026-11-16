@@ -1,0 +1,24 @@
+{
+  "name": "EndoVision - Visão Computacional para Endodontia",
+  "short_name": "EndoVision",
+  "description": "Aprimorador de radiografias periapicais desenvolvido por Korvyn.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#07090d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/korvyn_icon.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/korvyn_logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

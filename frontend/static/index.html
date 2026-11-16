@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EndoVision | Visão Computacional para Endodontia &bull; Criação Korvyn</title>
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#07090d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EndoVision">
+  <link rel="apple-touch-icon" href="/assets/korvyn_icon.png">
+  <link rel="icon" type="image/png" href="/assets/korvyn_icon.png">
+
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,6 +80,15 @@
 
     <!-- Actions Area -->
     <div class="header-right">
+      <!-- PWA Install Button (aparece no celular ou navegador suportado) -->
+      <button id="btnInstallPwa" class="btn btn-ghost btn-sm hidden" title="Instalar aplicativo no celular ou desktop">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+        <span>Instalar App</span>
+      </button>
+
       <!-- Pro Plan Badge / Upgrade Trigger -->
       <button id="btnOpenProModal" class="btn btn-pro-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -346,11 +365,14 @@
         <!-- Video Top Header Bar with Logo -->
         <div class="video-overlay-header">
           <img src="assets/korvyn_logo.jpg" alt="Korvyn Atendimento Automatizado" class="video-korvyn-brand">
-          <span class="video-time-pill" id="videoElapsedTimer">0:01 / 0:05</span>
+          <span class="video-time-pill" id="videoElapsedTimer">0:00 / 0:05</span>
         </div>
 
-        <!-- Simulated Video / Attendance Animation -->
-        <div class="video-screen-content">
+        <!-- Real HTML5 Video Player (se houver arquivo korvyn_ad.mp4) -->
+        <video id="korvynVideoPlayer" class="korvyn-native-video hidden" playsinline muted autoplay></video>
+
+        <!-- Simulated Video / Attendance Animation (Fallback quando não houver arquivo de vídeo) -->
+        <div class="video-screen-content" id="videoFallbackContent">
           <div class="chat-preview-wrap">
             <div class="chat-bubble chat-user">
               <span class="bubble-sender">Paciente (WhatsApp)</span>

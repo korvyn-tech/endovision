@@ -56,8 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const adTimerCount = document.getElementById('adTimerCount');
   const videoElapsedTimer = document.getElementById('videoElapsedTimer');
   const videoProgressBar = document.getElementById('videoProgressBar');
+  const korvynVideoPlayer = document.getElementById('korvynVideoPlayer');
+  const videoFallbackContent = document.getElementById('videoFallbackContent');
   const btnSkipAd = document.getElementById('btnSkipAd');
   const btnUpgradeFromAd = document.getElementById('btnUpgradeFromAd');
+  const btnInstallPwa = document.getElementById('btnInstallPwa');
 
   // Modal Pro / Licença
   const modalProPricing = document.getElementById('modalProPricing');
@@ -95,6 +98,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 1. Inicializacao do Estado Pro / Ads
   // ==========================================
+  // ==========================================
+  // 1. PWA e Registro do Service Worker
+  // ==========================================
+  let deferredPrompt = null;
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('SW register fail:', err);
+      });
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btnInstallPwa) {
+      btnInstallPwa.classList.remove('hidden');
+    }
+  });
+
+  if (btnInstallPwa) {
+    btnInstallPwa.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          btnInstallPwa.classList.add('hidden');
+          showToast('EndoVision instalado com sucesso na sua tela inicial!');
+        }
+        deferredPrompt = null;
+      } else {
+        showToast('Para instalar: no navegador, acesse o menu de opções e selecione "Instalar Aplicativo" ou "Adicionar à Tela de Início".');
+      }
+    });
+  }
+
   function syncProStatus() {
     if (state.isPro) {
       if (adBannerSlot) adBannerSlot.classList.add('hidden');
@@ -277,10 +316,24 @@ document.addEventListener('DOMContentLoaded', () => {
     videoElapsedTimer.textContent = `0:00 / 0:05`;
     videoProgressBar.style.width = '0%';
 
+    // Verificar se existe arquivo de vídeo MP4 na pasta de assets
+    if (korvynVideoPlayer) {
+      korvynVideoPlayer.src = '/assets/videos/korvyn_ad.mp4';
+      korvynVideoPlayer.oncanplay = () => {
+        korvynVideoPlayer.classList.remove('hidden');
+        if (videoFallbackContent) videoFallbackContent.classList.add('hidden');
+        korvynVideoPlayer.play().catch(() => {});
+      };
+      korvynVideoPlayer.onerror = () => {
+        // Se ainda não colocou o vídeo físico, mantém a demonstração animada
+        korvynVideoPlayer.classList.add('hidden');
+        if (videoFallbackContent) videoFallbackContent.classList.remove('hidden');
+      };
+    }
+
     clearInterval(state.adCountdownTimer);
     clearInterval(state.videoProgressInterval);
 
-    // Barra de progresso suave a cada 100ms
     const startTime = Date.now();
     state.videoProgressInterval = setInterval(() => {
       const elapsedMs = Date.now() - startTime;
@@ -291,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 100);
 
-    // Contador regressivo por segundo
     state.adCountdownTimer = setInterval(() => {
       elapsedSeconds++;
       const remaining = totalSeconds - elapsedSeconds;
