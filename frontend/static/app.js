@@ -1,20 +1,23 @@
 /**
  * EndoVision - Client Application Logic
  * Interface Clínica para Aprimoramento de Radiografias Periapicais
- * Desenvolvido para Corvin Health Tech
+ * Módulo de Monetização: Freemium, Ads & EndoVision Pro
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Estado da Aplicação
+  // Estado da Aplicação e Monetização
   const state = {
     currentFile: null,
     currentPreset: 'apical_enhancement',
     originalImageSrc: null,
     enhancedImageSrc: null,
-    splitPosition: 50, // porcentagem (0 a 100)
+    splitPosition: 50,
     zoomLevel: 1.0,
     isDraggingSplit: false,
     debounceTimer: null,
+    usageCount: parseInt(localStorage.getItem('endovision_usage_count') || '0', 10),
+    isPro: localStorage.getItem('endovision_is_pro') === 'true',
+    adCountdownTimer: null,
   };
 
   // Elementos do DOM
@@ -35,6 +38,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDownload = document.getElementById('btnDownload');
   const btnCopyClipboard = document.getElementById('btnCopyClipboard');
   const btnResetAdjustments = document.getElementById('btnResetAdjustments');
+
+  // Monetização & Ads
+  const adBannerSlot = document.getElementById('adBannerSlot');
+  const adRemoveTrigger = document.getElementById('adRemoveTrigger');
+  const btnOpenProModal = document.getElementById('btnOpenProModal');
+  const proBadgeLabel = document.getElementById('proBadgeLabel');
+  const modalInterstitialAd = document.getElementById('modalInterstitialAd');
+  const adTimerCount = document.getElementById('adTimerCount');
+  const btnSkipAd = document.getElementById('btnSkipAd');
+  const btnUpgradeFromAd = document.getElementById('btnUpgradeFromAd');
+  const modalProPricing = document.getElementById('modalProPricing');
+  const btnCloseProModal = document.getElementById('btnCloseProModal');
+  const btnSelectMonthly = document.getElementById('btnSelectMonthly');
+  const btnSelectLifetime = document.getElementById('btnSelectLifetime');
+  const inputLicenseKey = document.getElementById('inputLicenseKey');
+  const btnActivateLicense = document.getElementById('btnActivateLicense');
 
   // Zoom
   const btnZoomIn = document.getElementById('btnZoomIn');
@@ -62,7 +81,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const toast = document.getElementById('toastNotification');
 
   // ==========================================
-  // 1. Eventos de Upload / Drag & Drop
+  // 1. Inicializacao do Estado Pro / Ads
+  // ==========================================
+  function syncProStatus() {
+    if (state.isPro) {
+      if (adBannerSlot) adBannerSlot.classList.add('hidden');
+      proBadgeLabel.textContent = 'Versão Pro Ativa';
+      btnOpenProModal.classList.add('is-active-pro');
+      btnOpenProModal.title = 'Plano Pro Ativo: Sem anúncios e ilimitado';
+    } else {
+      if (adBannerSlot) adBannerSlot.classList.remove('hidden');
+      proBadgeLabel.textContent = 'Obter Versão Pro';
+      btnOpenProModal.classList.remove('is-active-pro');
+    }
+  }
+
+  syncProStatus();
+
+  // ==========================================
+  // 2. Upload / Drag & Drop
   // ==========================================
   if (dropzone) {
     ['dragenter', 'dragover'].forEach(evt => {
@@ -95,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botoes de Exemplo Sintetico Clínico
   [btnSampleOverexposed, btnSampleQuick].forEach(btn => {
     if (btn) {
       btn.addEventListener('click', () => {
@@ -104,21 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ==========================================
-  // 2. Gerador de Radiografia Periapical Sintetica
-  // ==========================================
+  // Radiografia Sintetica
   function loadSyntheticDentalXray() {
-    showToast('Gerando simulação de radiografia periapical com superexposição...');
+    showToast('Gerando simulação de radiografia periapical...');
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 700;
     const ctx = canvas.getContext('2d');
 
-    // Fundo cinza lavado (radiografia superexposta no negatoscopio)
     ctx.fillStyle = '#b8bec7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Ruido granulado característico de pelicula de raio-X
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
@@ -129,19 +161,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     ctx.putImageData(imgData, 0, 0);
 
-    // Desenhar contorno radiopaco da coroa e raiz dentaria
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(220, 140);
     ctx.bezierCurveTo(200, 240, 240, 320, 250, 420);
-    ctx.bezierCurveTo(260, 520, 280, 620, 295, 650); // Forame apical
+    ctx.bezierCurveTo(260, 520, 280, 620, 295, 650);
     ctx.bezierCurveTo(310, 620, 330, 520, 340, 420);
     ctx.bezierCurveTo(350, 320, 390, 240, 370, 140);
     ctx.closePath();
     ctx.fillStyle = 'rgba(235, 240, 245, 0.45)';
     ctx.fill();
 
-    // Canal radicular endodontico (radiolúcido - escuro)
     ctx.beginPath();
     ctx.moveTo(290, 240);
     ctx.bezierCurveTo(292, 340, 294, 460, 297, 642);
@@ -149,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.strokeStyle = 'rgba(120, 125, 135, 0.35)';
     ctx.stroke();
 
-    // Ligamento periodontal e trabeculado osseo periapical
     ctx.beginPath();
     ctx.arc(297, 658, 22, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(140, 145, 155, 0.25)';
@@ -157,13 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.restore();
 
     canvas.toBlob((blob) => {
-      const file = new File([blob], 'rx_periapical_superexposta.png', { type: 'image/png' });
+      const file = new File([blob], 'rx_periapical_lavada.png', { type: 'image/png' });
       handleImageSelection(file);
     }, 'image/png');
   }
 
   // ==========================================
-  // 3. Processamento e Chamada da API
+  // 3. Trava de Monetização (Intersticial pós-1º uso)
   // ==========================================
   function handleImageSelection(file) {
     if (!file.type.startsWith('image/')) {
@@ -178,16 +207,112 @@ document.addEventListener('DOMContentLoaded', () => {
       state.originalImageSrc = e.target.result;
       imgOriginal.src = e.target.result;
 
-      // Trocar da Dropzone para o Comparador
       dropzone.classList.add('hidden');
       comparisonStage.classList.remove('hidden');
 
-      // Executar aprimoramento
-      processImage();
+      // Checagem de Monetização:
+      // Se for PRO: executa direto sem interrupções!
+      // Se for Grátis no 1º uso: executa cortesia e avisa!
+      // Se for Grátis a partir do 2º uso: exige assistir ao anúncio antes de processar!
+      if (state.isPro || state.usageCount === 0) {
+        if (!state.isPro && state.usageCount === 0) {
+          showToast('Primeira análise gratuita! A partir da próxima, assista a um anúncio ou assine o Pro.');
+        }
+        state.usageCount++;
+        localStorage.setItem('endovision_usage_count', state.usageCount.toString());
+        processImage();
+      } else {
+        triggerInterstitialAd();
+      }
     };
     reader.readAsDataURL(file);
   }
 
+  function triggerInterstitialAd() {
+    modalInterstitialAd.classList.remove('hidden');
+    let secondsLeft = 5;
+    btnSkipAd.disabled = true;
+    btnSkipAd.textContent = `Aguarde ${secondsLeft}s...`;
+    adTimerCount.textContent = `Aguarde ${secondsLeft}s para continuar`;
+
+    clearInterval(state.adCountdownTimer);
+    state.adCountdownTimer = setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft > 0) {
+        btnSkipAd.textContent = `Aguarde ${secondsLeft}s...`;
+        adTimerCount.textContent = `Aguarde ${secondsLeft}s para continuar`;
+      } else {
+        clearInterval(state.adCountdownTimer);
+        adTimerCount.textContent = 'Anúncio concluído';
+        btnSkipAd.disabled = false;
+        btnSkipAd.textContent = 'Continuar com Imagem (Grátis)';
+      }
+    }, 1000);
+  }
+
+  btnSkipAd.addEventListener('click', () => {
+    modalInterstitialAd.classList.add('hidden');
+    state.usageCount++;
+    localStorage.setItem('endovision_usage_count', state.usageCount.toString());
+    processImage();
+  });
+
+  btnUpgradeFromAd.addEventListener('click', () => {
+    modalInterstitialAd.classList.add('hidden');
+    clearInterval(state.adCountdownTimer);
+    modalProPricing.classList.remove('hidden');
+  });
+
+  // ==========================================
+  // 4. Modal de Preços & Assinatura Pro
+  // ==========================================
+  [btnOpenProModal, adRemoveTrigger].forEach(btn => {
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modalProPricing.classList.remove('hidden');
+      });
+    }
+  });
+
+  btnCloseProModal.addEventListener('click', () => {
+    modalProPricing.classList.add('hidden');
+  });
+
+  function activateProPlan(planType) {
+    state.isPro = true;
+    localStorage.setItem('endovision_is_pro', 'true');
+    syncProStatus();
+    modalProPricing.classList.add('hidden');
+    showToast(`Parabéns! Plano ${planType} ativado com sucesso. Todos os anúncios foram removidos.`);
+
+    // Se já havia uma imagem na fila, processa imediatamente
+    if (state.currentFile) {
+      processImage();
+    }
+  }
+
+  btnSelectMonthly.addEventListener('click', () => {
+    activateProPlan('Mensal (R$ 29,90/mês)');
+  });
+
+  btnSelectLifetime.addEventListener('click', () => {
+    activateProPlan('Vitalício (R$ 149)');
+  });
+
+  // Ativação por Chave de Licença (Demo: CORVINPRO)
+  btnActivateLicense.addEventListener('click', () => {
+    const key = (inputLicenseKey.value || '').trim().toUpperCase();
+    if (key === 'CORVINPRO' || key === 'ENDOVISION') {
+      activateProPlan('Pro via Chave Corporativa');
+    } else {
+      showToast('Chave inválida. Utilize a chave de demonstração: CORVINPRO', true);
+    }
+  });
+
+  // ==========================================
+  // 5. Processamento via API REST
+  // ==========================================
   async function processImage() {
     if (!state.currentFile) return;
 
@@ -238,7 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     badgeEnhancedPreset.textContent = presetNames[result.preset_applied] || 'Aprimorado';
 
-    // Atualizar Metricas
     processingTimeBadge.textContent = `${result.processing_time_ms} ms`;
 
     const origRms = result.original_metrics.rms_contrast;
@@ -252,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
     brightnessOrig.textContent = Math.round(result.original_metrics.mean_brightness);
     brightnessEnh.textContent = Math.round(result.enhanced_metrics.mean_brightness);
 
-    // Habilitar acoes
     btnDownload.disabled = false;
     btnCopyClipboard.disabled = false;
 
@@ -260,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 4. Split Slider Interativo
+  // 6. Split Slider Interativo
   // ==========================================
   function updateSplitSlider(percentage) {
     state.splitPosition = Math.max(0, Math.min(100, percentage));
@@ -291,7 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.isDraggingSplit = false;
   });
 
-  // Touch
   imageWrapper.addEventListener('touchstart', (e) => {
     if (e.touches && e.touches.length === 1) {
       state.isDraggingSplit = true;
@@ -310,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================
-  // 5. Presets & Controles
+  // 7. Presets & Controles
   // ==========================================
   presetsBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.segmented-btn');
@@ -367,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================
-  // 6. Zoom
+  // 8. Zoom
   // ==========================================
   function setZoom(level) {
     state.zoomLevel = Math.max(0.5, Math.min(3.0, level));
@@ -380,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnZoomReset.addEventListener('click', () => setZoom(1.0));
 
   // ==========================================
-  // 7. Acoes de Exportacao
+  // 9. Exportacao
   // ==========================================
   btnDownload.addEventListener('click', () => {
     if (!state.enhancedImageSrc) return;
@@ -401,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
       ]);
-      showToast('Imagem copiada para a área de transferência com sucesso.');
+      showToast('Imagem copiada para a área de transferência.');
     } catch (err) {
       console.warn('Falha no ClipboardItem:', err);
       showToast('Navegador bloqueou a cópia direta. Utilize o botão Exportar.', true);
