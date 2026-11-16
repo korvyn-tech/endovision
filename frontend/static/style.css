@@ -295,7 +295,7 @@ body {
 /* Empty Dropzone State */
 .empty-state {
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
 }
 
 .empty-card {
@@ -303,14 +303,57 @@ body {
   backdrop-filter: blur(16px);
   border: 1px dashed var(--border-medium);
   border-radius: var(--radius-lg);
-  padding: 36px 28px;
+  padding: 38px 30px;
   text-align: center;
   transition: var(--transition);
 }
 
+.clickable-dropzone {
+  cursor: pointer;
+  user-select: none;
+}
+
+.clickable-dropzone:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(14, 22, 36, 0.85);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.1);
+}
+
 .empty-state.dragover .empty-card {
   border-color: var(--accent-cyan);
-  background: rgba(56, 189, 248, 0.04);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.upload-illustration {
+  margin-bottom: 14px;
+}
+
+.upload-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(56, 189, 248, 0.1));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.15);
+  transition: var(--transition);
+}
+
+.clickable-dropzone:hover .upload-icon-circle {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
+  border-color: var(--accent-cyan);
+}
+
+.empty-actions-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .empty-korvyn-badge {
@@ -411,6 +454,34 @@ body {
 .control-btn:hover {
   color: var(--text-primary);
   background-color: var(--bg-panel);
+}
+
+.control-btn-wide {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.control-btn-wide:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-panel);
+}
+
+.control-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--border-subtle);
+  margin: 0 2px;
 }
 
 .zoom-indicator {

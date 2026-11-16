@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Elementos do DOM
   const fileUploadInput = document.getElementById('fileUploadInput');
   const dropzone = document.getElementById('dropzone');
+  const dropzoneCard = document.getElementById('dropzoneCard');
+  const btnUploadHeader = document.getElementById('btnUploadHeader');
+  const btnSelectFileCenter = document.getElementById('btnSelectFileCenter');
+  const btnChangeImage = document.getElementById('btnChangeImage');
   const comparisonStage = document.getElementById('comparisonStage');
   const imageWrapper = document.getElementById('imageWrapper');
   const imgOriginal = document.getElementById('imgOriginal');
@@ -115,8 +119,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 2. Upload / Drag & Drop
+  // 2. Upload / Drag & Drop & Seleção Intuitiva
   // ==========================================
+  function openFilePicker() {
+    fileUploadInput.value = '';
+    fileUploadInput.click();
+  }
+
+  // Cliques claros nos botões de envio
+  if (btnUploadHeader) btnUploadHeader.addEventListener('click', openFilePicker);
+  if (btnSelectFileCenter) btnSelectFileCenter.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openFilePicker();
+  });
+  if (btnChangeImage) btnChangeImage.addEventListener('click', openFilePicker);
+
+  // Clicar em qualquer lugar do card de upload (exceto no botão de exemplo)
+  if (dropzoneCard) {
+    dropzoneCard.addEventListener('click', (e) => {
+      if (e.target.closest('#btnSampleQuick')) return;
+      openFilePicker();
+    });
+  }
+
   if (dropzone) {
     ['dragenter', 'dragover'].forEach(evt => {
       dropzone.addEventListener(evt, (e) => {

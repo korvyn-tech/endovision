@@ -14,9 +14,14 @@
   <header class="app-header">
     <div class="header-left">
       <div class="brand">
-        <!-- Korvyn Metallic Raven Icon -->
-        <div class="brand-symbol korvyn-brand-avatar">
-          <img src="assets/korvyn_icon.png" alt="Korvyn Logo" class="korvyn-avatar-img">
+        <!-- Ícone Dental / Raiz & Canal Radicular Restaurado -->
+        <div class="brand-symbol">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M7 3C8.5 7.5 9 13 11 18.5C11.5 19.8 12.5 19.8 13 18.5C15 13 15.5 7.5 17 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12 4.5V17" stroke="var(--accent-glow)" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+            <circle cx="12" cy="19" r="2.5" stroke="var(--accent-glow)" stroke-width="1.5"/>
+            <path d="M3 8V5H6M18 5H21V8M21 16V19H18M6 19H3V16" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+          </svg>
         </div>
         <div class="brand-text">
           <span class="brand-name">EndoVision</span>
@@ -73,24 +78,24 @@
         <span id="proBadgeLabel">Obter Versão Pro</span>
       </button>
 
-      <button id="btnSampleOverexposed" class="btn btn-ghost" title="Carregar imagem sintética para teste clínico">
+      <button id="btnSampleOverexposed" class="btn btn-ghost" title="Carregar radiografia para teste clínico">
         <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
           <polyline points="14 2 14 8 20 8"/>
           <line x1="12" y1="18" x2="12" y2="12"/>
           <line x1="9" y1="15" x2="15" y2="15"/>
         </svg>
-        <span>Exemplo Lavado</span>
+        <span>Radiografia de Exemplo</span>
       </button>
 
-      <label for="fileUploadInput" class="btn btn-primary">
+      <button id="btnUploadHeader" class="btn btn-primary">
         <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
-        <span>Importar Raio-X</span>
-      </label>
+        <span>Enviar Radiografia</span>
+      </button>
       <input type="file" id="fileUploadInput" accept="image/*" style="display: none;">
     </div>
   </header>
@@ -99,29 +104,46 @@
   <main class="app-layout">
     <!-- Viewport Stage -->
     <section class="stage-section" id="viewerSection">
-      <!-- Empty Dropzone State -->
+      <!-- Empty Dropzone State (Área inteira clicável e intuitiva) -->
       <div class="empty-state" id="dropzone">
-        <div class="empty-card">
+        <div class="empty-card clickable-dropzone" id="dropzoneCard" title="Clique ou arraste um raio-X aqui">
           <div class="empty-korvyn-badge">
             <img src="assets/korvyn_icon.png" alt="Korvyn" class="empty-korvyn-logo">
             <span>UMA CRIAÇÃO KORVYN</span>
           </div>
-          <h2 class="empty-title">Carregue a radiografia periapical</h2>
-          <p class="empty-desc">Arraste um arquivo ou foto de celular sobre o negatoscópio. Formatos suportados: TIFF, PNG, JPEG, RVG.</p>
+
+          <div class="upload-illustration">
+            <div class="upload-icon-circle">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+          </div>
+
+          <h2 class="empty-title">Clique para selecionar ou arraste a radiografia aqui</h2>
+          <p class="empty-desc">Fotografe o raio-X físico sobre o negatoscópio ou envie imagens do seu sensor digital (RVG, PNG, JPEG, TIFF).</p>
           
-          <div class="empty-buttons">
-            <button class="btn btn-primary" onclick="document.getElementById('fileUploadInput').click()">
-              Selecionar do Computador
+          <div class="empty-actions-row">
+            <button class="btn btn-primary" id="btnSelectFileCenter">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Escolher do Computador</span>
             </button>
             <button class="btn btn-secondary" id="btnSampleQuick">
-              Carregar Radiografia Exemplo
+              <span>Testar com Radiografia Exemplo</span>
             </button>
           </div>
+
           <div class="empty-compliance">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            <span>Processamento local seguro &bull; Tecnologia Korvyn &bull; Sem retenção de dados</span>
+            <span>Processamento local em tempo real &bull; Tecnologia Korvyn &bull; Sem retenção de dados</span>
           </div>
         </div>
       </div>
@@ -131,6 +153,15 @@
         <!-- Floating Canvas Tool Controls -->
         <div class="viewport-controls">
           <div class="zoom-group">
+            <button id="btnChangeImage" class="control-btn-wide" title="Trocar por outra radiografia">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Trocar Raio-X</span>
+            </button>
+            <div class="control-separator"></div>
             <button id="btnZoomOut" class="control-btn" title="Reduzir zoom">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
@@ -419,7 +450,6 @@
         </div>
       </div>
 
-      <!-- Ativação Rápida de Demonstração -->
       <div class="license-key-area">
         <span class="license-label">Possui uma chave Korvyn?</span>
         <div class="license-input-group">
