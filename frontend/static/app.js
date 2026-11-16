@@ -1,6 +1,7 @@
 /**
  * EndoVision - Client Application Logic
  * Interface Clínica para Aprimoramento de Radiografias Periapicais
+ * Desenvolvido para Corvin Health Tech
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,36 +62,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const toast = document.getElementById('toastNotification');
 
   // ==========================================
-  // 1. Inicializacao e Eventos de Upload / Drag & Drop
+  // 1. Eventos de Upload / Drag & Drop
   // ==========================================
-
-  // Drag & drop na dropzone
-  ['dragenter', 'dragover'].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
     });
-  });
 
-  ['dragleave', 'drop'].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
+    ['dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
     });
-  });
 
-  dropzone.addEventListener('drop', (e) => {
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleImageSelection(files[0]);
-    }
-  });
+    dropzone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleImageSelection(files[0]);
+      }
+    });
+  }
 
-  fileUploadInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      handleImageSelection(e.target.files[0]);
-    }
-  });
+  if (fileUploadInput) {
+    fileUploadInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleImageSelection(e.target.files[0]);
+      }
+    });
+  }
 
   // Botoes de Exemplo Sintetico Clínico
   [btnSampleOverexposed, btnSampleQuick].forEach(btn => {
@@ -129,29 +132,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Desenhar contorno radiopaco da coroa e raiz dentaria
     ctx.save();
     ctx.beginPath();
-    // Coroa dentaria
     ctx.moveTo(220, 140);
     ctx.bezierCurveTo(200, 240, 240, 320, 250, 420);
-    // Raiz afilando em direcao ao ápice
     ctx.bezierCurveTo(260, 520, 280, 620, 295, 650); // Forame apical
     ctx.bezierCurveTo(310, 620, 330, 520, 340, 420);
     ctx.bezierCurveTo(350, 320, 390, 240, 370, 140);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(235, 240, 245, 0.45)'; // Esmalte/Dentina radiopacos lavados
+    ctx.fillStyle = 'rgba(235, 240, 245, 0.45)';
     ctx.fill();
 
     // Canal radicular endodontico (radiolúcido - escuro)
     ctx.beginPath();
-    ctx.moveTo(290, 240); // Camara pulpar
-    ctx.bezierCurveTo(292, 340, 294, 460, 297, 642); // Constricao apical
+    ctx.moveTo(290, 240);
+    ctx.bezierCurveTo(292, 340, 294, 460, 297, 642);
     ctx.lineWidth = 3.5;
-    ctx.strokeStyle = 'rgba(120, 125, 135, 0.35)'; // Quase invisivel na radiografia lavada!
+    ctx.strokeStyle = 'rgba(120, 125, 135, 0.35)';
     ctx.stroke();
 
     // Ligamento periodontal e trabeculado osseo periapical
     ctx.beginPath();
     ctx.arc(297, 658, 22, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(140, 145, 155, 0.25)'; // Lesao periapical sutil
+    ctx.fillStyle = 'rgba(140, 145, 155, 0.25)';
     ctx.fill();
     ctx.restore();
 
@@ -172,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     state.currentFile = file;
 
-    // Leitura local para exibicao imediata do Original
     const reader = new FileReader();
     reader.onload = (e) => {
       state.originalImageSrc = e.target.result;
@@ -229,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.enhancedImageSrc = result.image_base64;
     imgEnhanced.src = result.image_base64;
 
-    // Atualizar badge do preset
     const presetNames = {
       apical_enhancement: 'Ápice & Forame',
       calcified_canals: 'Canais Calcificados',
@@ -242,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualizar Metricas
     processingTimeBadge.textContent = `${result.processing_time_ms} ms`;
 
-    // Calculo do ganho percentual de contraste RMS
     const origRms = result.original_metrics.rms_contrast;
     const enhRms = result.enhanced_metrics.rms_contrast;
     const gainPct = origRms > 0 ? Math.round(((enhRms - origRms) / origRms) * 100) : 0;
@@ -254,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     brightnessOrig.textContent = Math.round(result.original_metrics.mean_brightness);
     brightnessEnh.textContent = Math.round(result.enhanced_metrics.mean_brightness);
 
-    // Habilitar botoes de acao
+    // Habilitar acoes
     btnDownload.disabled = false;
     btnCopyClipboard.disabled = false;
 
@@ -262,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 4. Split Slider Interativo (Antes / Depois)
+  // 4. Split Slider Interativo
   // ==========================================
   function updateSplitSlider(percentage) {
     state.splitPosition = Math.max(0, Math.min(100, percentage));
@@ -293,16 +291,16 @@ document.addEventListener('DOMContentLoaded', () => {
     state.isDraggingSplit = false;
   });
 
-  // Suporte a Touch para iPad / Tablet odontológico
+  // Touch
   imageWrapper.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
+    if (e.touches && e.touches.length === 1) {
       state.isDraggingSplit = true;
       handleSplitMove(e.touches[0].clientX);
     }
   });
 
   window.addEventListener('touchmove', (e) => {
-    if (state.isDraggingSplit && e.touches.length === 1) {
+    if (state.isDraggingSplit && e.touches && e.touches.length === 1) {
       handleSplitMove(e.touches[0].clientX);
     }
   });
@@ -312,20 +310,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================
-  // 5. Presets & Controles Manuais
+  // 5. Presets & Controles
   // ==========================================
   presetsBar.addEventListener('click', (e) => {
-    const pill = e.target.closest('.preset-pill');
-    if (!pill) return;
+    const btn = e.target.closest('.segmented-btn');
+    if (!btn) return;
 
-    document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
+    document.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-    state.currentPreset = pill.dataset.preset;
+    state.currentPreset = btn.dataset.preset;
     processImage();
   });
 
-  // Atualizacao de labels dos sliders
   function bindSlider(slider, labelElem, format = (v) => v) {
     slider.addEventListener('input', () => {
       labelElem.textContent = format(slider.value);
@@ -345,8 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function activateCustomMode() {
     state.currentPreset = 'custom';
-    document.querySelectorAll('.preset-pill').forEach(p => {
-      p.classList.toggle('active', p.dataset.preset === 'custom');
+    document.querySelectorAll('.segmented-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === 'custom');
     });
 
     clearTimeout(state.debounceTimer);
@@ -365,12 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
     checkInvert.checked = false;
     checkNormalize.checked = true;
 
-    // Voltar para preset padrao
-    document.querySelector('[data-preset="apical_enhancement"]').click();
+    const defaultBtn = document.querySelector('[data-preset="apical_enhancement"]');
+    if (defaultBtn) defaultBtn.click();
   });
 
   // ==========================================
-  // 6. Zoom & Pan
+  // 6. Zoom
   // ==========================================
   function setZoom(level) {
     state.zoomLevel = Math.max(0.5, Math.min(3.0, level));
@@ -393,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    showToast('Radiografia aprimorada exportada em alta resolução!');
+    showToast('Radiografia aprimorada exportada em alta resolução.');
   });
 
   btnCopyClipboard.addEventListener('click', async () => {
@@ -404,18 +401,17 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
       ]);
-      showToast('Imagem copiada para a área de transferência! Pronta para colar no prontuário.');
+      showToast('Imagem copiada para a área de transferência com sucesso.');
     } catch (err) {
       console.warn('Falha no ClipboardItem:', err);
-      showToast('Navegador bloqueou a cópia direta. Use o botão Baixar.', true);
+      showToast('Navegador bloqueou a cópia direta. Utilize o botão Exportar.', true);
     }
   });
 
-  // Toast Helper
   function showToast(message, isError = false) {
     toast.textContent = message;
-    toast.style.borderColor = isError ? '#ef4444' : 'var(--accent-cyan)';
-    toast.style.color = isError ? '#f87171' : 'var(--text-main)';
+    toast.style.borderColor = isError ? 'rgba(239, 68, 68, 0.4)' : 'rgba(56, 189, 248, 0.4)';
+    toast.style.color = isError ? '#f87171' : 'var(--text-primary)';
     toast.classList.remove('hidden');
 
     setTimeout(() => {
