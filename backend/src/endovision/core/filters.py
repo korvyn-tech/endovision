@@ -43,6 +43,9 @@ def apply_clahe(
     Ideal para revelar canais radiculares e trabeculado ósseo sem amplificar ruído excessivo.
     """
     gray = to_dental_grayscale(image)
+    if gray.min() == gray.max():
+        return gray
+
     clahe = cv2.createCLAHE(clipLimit=float(clip_limit), tileGridSize=tile_grid_size)
     return clahe.apply(gray)
 
