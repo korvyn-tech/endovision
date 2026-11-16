@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EndoVision - Aprimorador de Radiografias Periapicais | Corvin</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 3v18"/>
+          <path d="M3 12h18"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="logo-title">Endo<span>Vision</span></h1>
+        <span class="brand-tag">Soluções em Tecnologia por <strong>Corvin</strong></span>
+      </div>
+    </div>
+
+    <!-- Quick Clinical Presets -->
+    <div class="presets-bar" id="presetsBar">
+      <button class="preset-pill active" data-preset="apical_enhancement">
+        <span class="icon">🎯</span> Ápice & Forame
+      </button>
+      <button class="preset-pill" data-preset="calcified_canals">
+        <span class="icon">⚡</span> Canais Calcificados
+      </button>
+      <button class="preset-pill" data-preset="contrast_recovery">
+        <span class="icon">☀️</span> Recuperar Exposição
+      </button>
+      <button class="preset-pill" data-preset="negative_invert">
+        <span class="icon">🌓</span> Inversão Negativo
+      </button>
+      <button class="preset-pill" data-preset="custom">
+        <span class="icon">🎛️</span> Manual
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button id="btnSampleOverexposed" class="btn btn-secondary btn-sm">
+        <span>🧪</span> Carregar RX Lavada
+      </button>
+      <label for="fileUploadInput" class="btn btn-primary btn-sm">
+        <span>📁</span> Nova Radiografia
+      </label>
+      <input type="file" id="fileUploadInput" accept="image/*" style="display: none;">
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="workspace">
+    <!-- Viewport Area (Viewer with Before/After Slider) -->
+    <section class="viewer-section" id="viewerSection">
+      <!-- Empty State / Dropzone -->
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-card">
+          <div class="dropzone-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+              <path d="M12 12v9"/>
+              <path d="m8 16 4-4 4 4"/>
+            </svg>
+          </div>
+          <h3>Arraste a radiografia periapical aqui</h3>
+          <p>Suporta fotos tiradas pelo celular no negatoscópio, sensores digitais (RVG), PNG, JPEG e TIFF.</p>
+          <div class="dropzone-actions">
+            <button class="btn btn-primary" onclick="document.getElementById('fileUploadInput').click()">
+              Selecionar do Dispositivo
+            </button>
+            <button class="btn btn-outline" id="btnSampleQuick">
+              Testar com Radiografia Exemplo
+            </button>
+          </div>
+          <span class="security-note">🔒 Processamento local e seguro. Imagens não são armazenadas permanentemente.</span>
+        </div>
+      </div>
+
+      <!-- Loaded Image Viewer with Interactive Split Comparison -->
+      <div class="comparison-stage hidden" id="comparisonStage">
+        <div class="zoom-toolbar">
+          <button id="btnZoomIn" title="Aumentar Zoom">➕</button>
+          <button id="btnZoomOut" title="Diminuir Zoom">➖</button>
+          <button id="btnZoomReset" title="Resetar Visualização">100%</button>
+          <span id="zoomLevelText" class="zoom-text">100%</span>
+        </div>
+
+        <div class="image-wrapper" id="imageWrapper">
+          <!-- Imagem Original (Camada de Fundo) -->
+          <img id="imgOriginal" src="" alt="Radiografia Original" class="viewer-img">
+          
+          <!-- Imagem Aprimorada (Camada Superior com Clip) -->
+          <div class="overlay-container" id="overlayContainer">
+            <img id="imgEnhanced" src="" alt="Radiografia Aprimorada" class="viewer-img">
+          </div>
+
+          <!-- Linha Divisória Interativa -->
+          <div class="split-divider" id="splitDivider">
+            <div class="divider-handle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="m8 7-5 5 5 5"/>
+                <path d="m16 7 5 5-5 5"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Badges Indicadoras -->
+          <span class="badge-label badge-left">Original</span>
+          <span class="badge-label badge-right" id="badgeEnhancedPreset">Aprimorado</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sidebar: Metrics & Manual Controls -->
+    <aside class="sidebar">
+      <!-- Painel de Métricas Clínicas -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Métricas de Imagem</h2>
+          <span id="processingTimeBadge" class="time-badge">0 ms</span>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Ganho de Contraste</span>
+            <div class="metric-value-group">
+              <span id="contrastGainValue" class="metric-value gain">+0%</span>
+            </div>
+            <span class="metric-sub">Índice RMS de nitidez</span>
+          </div>
+
+          <div class="metric-card">
+            <span class="metric-label">Contraste Michelson</span>
+            <div class="metric-value-group">
+              <span id="michelsonOrig" class="metric-orig">0.00</span>
+              <span class="arrow">→</span>
+              <span id="michelsonEnh" class="metric-enh">0.00</span>
+            </div>
+            <span class="metric-sub">Faixa dinâmica apical</span>
+          </div>
+
+          <div class="metric-card">
+            <span class="metric-label">Brilho Médio</span>
+            <div class="metric-value-group">
+              <span id="brightnessOrig" class="metric-orig">0</span>
+              <span class="arrow">→</span>
+              <span id="brightnessEnh" class="metric-enh">0</span>
+            </div>
+            <span class="metric-sub">Compensação de exposição</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ajustes Finos / Controles Manuais -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Ajustes Finos (Odonto Tuning)</h2>
+          <button id="btnResetAdjustments" class="btn-text">Padrão</button>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label-row">
+            <label for="sliderGamma">Exposição & Gama</label>
+            <span id="valGamma">1.20</span>
+          </div>
+          <input type="range" id="sliderGamma" min="0.4" max="2.5" step="0.05" value="1.2">
+          <span class="control-hint">Gama > 1.0 resgata radiografias lavadas; < 1.0 clareia áreas escuras.</span>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label-row">
+            <label for="sliderClahe">Contraste Adaptativo (CLAHE)</label>
+            <span id="valClahe">3.5</span>
+          </div>
+          <input type="range" id="sliderClahe" min="0.5" max="6.0" step="0.1" value="3.5">
+          <span class="control-hint">Evidencia canais calcificados e trabeculado ósseo periapical.</span>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label-row">
+            <label for="sliderUnsharp">Nitidez Estrutural</label>
+            <span id="valUnsharp">1.4</span>
+          </div>
+          <input type="range" id="sliderUnsharp" min="0.0" max="3.0" step="0.1" value="1.4">
+          <span class="control-hint">Acentua forame apical e ligamento periodontal.</span>
+        </div>
+
+        <div class="control-row-toggles">
+          <label class="toggle-control">
+            <input type="checkbox" id="checkInvert">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Inversão Negativo</span>
+          </label>
+          <label class="toggle-control">
+            <input type="checkbox" id="checkNormalize" checked>
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Auto-Alcance</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Export Panel -->
+      <div class="panel">
+        <div class="export-actions">
+          <button id="btnDownload" class="btn btn-primary btn-block" disabled>
+            <span>💾</span> Baixar Radiografia em Alta
+          </button>
+          <button id="btnCopyClipboard" class="btn btn-secondary btn-block" disabled>
+            <span>📋</span> Copiar para Prontuário
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

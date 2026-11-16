@@ -24,6 +24,16 @@ async def test_health_check():
 
 
 @pytest.mark.anyio
+async def test_frontend_index_served():
+    """Valida se a interface HTML é servida corretamente na raiz /."""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/")
+        assert response.status_code == 200
+        assert "EndoVision" in response.text
+        assert "apical_enhancement" in response.text
+
+
+@pytest.mark.anyio
 async def test_list_presets():
     """Valida listagem de presets clínicos em /api/v1/presets."""
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:

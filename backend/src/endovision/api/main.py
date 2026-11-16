@@ -38,6 +38,7 @@ async def health_check() -> HealthResponse:
 app.include_router(router)
 
 # Monta diretório estático do frontend se existir
-static_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend" / "static"
+# main.py -> api -> endovision -> src -> backend -> endovision_root (5 níveis acima)
+static_dir = Path(__file__).resolve().parents[4] / "frontend" / "static"
 if static_dir.exists():
     app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
