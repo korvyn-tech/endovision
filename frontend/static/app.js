@@ -1,7 +1,7 @@
 /**
  * EndoVision - Client Application Logic
  * Interface Clínica para Aprimoramento de Radiografias Periapicais
- * Módulo de Monetização: Freemium, Ads & EndoVision Pro
+ * Criação Oficial Korvyn &bull; Módulo de Vídeo-Ad e Monetização
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     usageCount: parseInt(localStorage.getItem('endovision_usage_count') || '0', 10),
     isPro: localStorage.getItem('endovision_is_pro') === 'true',
     adCountdownTimer: null,
+    videoProgressInterval: null,
   };
 
   // Elementos do DOM
@@ -39,15 +40,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyClipboard = document.getElementById('btnCopyClipboard');
   const btnResetAdjustments = document.getElementById('btnResetAdjustments');
 
-  // Monetização & Ads
+  // Monetização & Anúncios Korvyn
   const adBannerSlot = document.getElementById('adBannerSlot');
   const adRemoveTrigger = document.getElementById('adRemoveTrigger');
+  const btnContactKorvyn = document.getElementById('btnContactKorvyn');
   const btnOpenProModal = document.getElementById('btnOpenProModal');
   const proBadgeLabel = document.getElementById('proBadgeLabel');
+
+  // Modal Vídeo-Ad Intersticial
   const modalInterstitialAd = document.getElementById('modalInterstitialAd');
   const adTimerCount = document.getElementById('adTimerCount');
+  const videoElapsedTimer = document.getElementById('videoElapsedTimer');
+  const videoProgressBar = document.getElementById('videoProgressBar');
   const btnSkipAd = document.getElementById('btnSkipAd');
   const btnUpgradeFromAd = document.getElementById('btnUpgradeFromAd');
+
+  // Modal Pro / Licença
   const modalProPricing = document.getElementById('modalProPricing');
   const btnCloseProModal = document.getElementById('btnCloseProModal');
   const btnSelectMonthly = document.getElementById('btnSelectMonthly');
@@ -88,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (adBannerSlot) adBannerSlot.classList.add('hidden');
       proBadgeLabel.textContent = 'Versão Pro Ativa';
       btnOpenProModal.classList.add('is-active-pro');
-      btnOpenProModal.title = 'Plano Pro Ativo: Sem anúncios e ilimitado';
+      btnOpenProModal.title = 'Plano Pro Ativo: Sem anúncios, sem vídeos e ilimitado';
     } else {
       if (adBannerSlot) adBannerSlot.classList.remove('hidden');
       proBadgeLabel.textContent = 'Obter Versão Pro';
@@ -97,6 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   syncProStatus();
+
+  // CTA do Patrocinador Korvyn
+  if (btnContactKorvyn) {
+    btnContactKorvyn.addEventListener('click', () => {
+      showToast('Redirecionando para atendimento da Korvyn...');
+      window.open('https://api.whatsapp.com/send?text=Olá%20Korvyn!%20Conheci%20o%20EndoVision%20e%20quero%20automatizar%20o%20atendimento%20da%20minha%20clínica.', '_blank');
+    });
+  }
 
   // ==========================================
   // 2. Upload / Drag & Drop
@@ -192,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 3. Trava de Monetização (Intersticial pós-1º uso)
+  // 3. Trava de Vídeo-Ad Korvyn (a partir do 2º uso)
   // ==========================================
   function handleImageSelection(file) {
     if (!file.type.startsWith('image/')) {
@@ -210,48 +226,68 @@ document.addEventListener('DOMContentLoaded', () => {
       dropzone.classList.add('hidden');
       comparisonStage.classList.remove('hidden');
 
-      // Checagem de Monetização:
-      // Se for PRO: executa direto sem interrupções!
-      // Se for Grátis no 1º uso: executa cortesia e avisa!
-      // Se for Grátis a partir do 2º uso: exige assistir ao anúncio antes de processar!
+      // Se for PRO ou 1º uso: processamento imediato!
       if (state.isPro || state.usageCount === 0) {
         if (!state.isPro && state.usageCount === 0) {
-          showToast('Primeira análise gratuita! A partir da próxima, assista a um anúncio ou assine o Pro.');
+          showToast('Primeira análise gratuita! Nos próximos usos, assista ao vídeo da Korvyn ou assine o Pro.');
         }
         state.usageCount++;
         localStorage.setItem('endovision_usage_count', state.usageCount.toString());
         processImage();
       } else {
-        triggerInterstitialAd();
+        triggerKorvynVideoAd();
       }
     };
     reader.readAsDataURL(file);
   }
 
-  function triggerInterstitialAd() {
+  function triggerKorvynVideoAd() {
     modalInterstitialAd.classList.remove('hidden');
-    let secondsLeft = 5;
+    let totalSeconds = 5;
+    let elapsedSeconds = 0;
+
     btnSkipAd.disabled = true;
-    btnSkipAd.textContent = `Aguarde ${secondsLeft}s...`;
-    adTimerCount.textContent = `Aguarde ${secondsLeft}s para continuar`;
+    btnSkipAd.textContent = `Aguarde a reprodução do vídeo (${totalSeconds}s)...`;
+    adTimerCount.textContent = `Assista ${totalSeconds}s para continuar`;
+    videoElapsedTimer.textContent = `0:00 / 0:05`;
+    videoProgressBar.style.width = '0%';
 
     clearInterval(state.adCountdownTimer);
+    clearInterval(state.videoProgressInterval);
+
+    // Barra de progresso suave a cada 100ms
+    const startTime = Date.now();
+    state.videoProgressInterval = setInterval(() => {
+      const elapsedMs = Date.now() - startTime;
+      const progress = Math.min(100, (elapsedMs / (totalSeconds * 1000)) * 100);
+      videoProgressBar.style.width = `${progress}%`;
+      if (progress >= 100) {
+        clearInterval(state.videoProgressInterval);
+      }
+    }, 100);
+
+    // Contador regressivo por segundo
     state.adCountdownTimer = setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft > 0) {
-        btnSkipAd.textContent = `Aguarde ${secondsLeft}s...`;
-        adTimerCount.textContent = `Aguarde ${secondsLeft}s para continuar`;
+      elapsedSeconds++;
+      const remaining = totalSeconds - elapsedSeconds;
+      videoElapsedTimer.textContent = `0:0${Math.min(5, elapsedSeconds)} / 0:05`;
+
+      if (remaining > 0) {
+        btnSkipAd.textContent = `Aguarde o vídeo (${remaining}s)...`;
+        adTimerCount.textContent = `Assista ${remaining}s para continuar`;
       } else {
         clearInterval(state.adCountdownTimer);
-        adTimerCount.textContent = 'Anúncio concluído';
+        adTimerCount.textContent = 'Vídeo concluído!';
         btnSkipAd.disabled = false;
-        btnSkipAd.textContent = 'Continuar com Imagem (Grátis)';
+        btnSkipAd.textContent = 'Continuar para Radiografia (Grátis)';
       }
     }, 1000);
   }
 
   btnSkipAd.addEventListener('click', () => {
     modalInterstitialAd.classList.add('hidden');
+    clearInterval(state.adCountdownTimer);
+    clearInterval(state.videoProgressInterval);
     state.usageCount++;
     localStorage.setItem('endovision_usage_count', state.usageCount.toString());
     processImage();
@@ -260,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnUpgradeFromAd.addEventListener('click', () => {
     modalInterstitialAd.classList.add('hidden');
     clearInterval(state.adCountdownTimer);
+    clearInterval(state.videoProgressInterval);
     modalProPricing.classList.remove('hidden');
   });
 
@@ -284,9 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('endovision_is_pro', 'true');
     syncProStatus();
     modalProPricing.classList.add('hidden');
-    showToast(`Parabéns! Plano ${planType} ativado com sucesso. Todos os anúncios foram removidos.`);
+    showToast(`Plano ${planType} ativado com sucesso! Todos os anúncios e vídeos foram removidos.`);
 
-    // Se já havia uma imagem na fila, processa imediatamente
     if (state.currentFile) {
       processImage();
     }
@@ -300,13 +336,13 @@ document.addEventListener('DOMContentLoaded', () => {
     activateProPlan('Vitalício (R$ 149)');
   });
 
-  // Ativação por Chave de Licença (Demo: CORVINPRO)
+  // Ativação por Chave (Demo: KORVYNPRO ou KORVYN)
   btnActivateLicense.addEventListener('click', () => {
     const key = (inputLicenseKey.value || '').trim().toUpperCase();
-    if (key === 'CORVINPRO' || key === 'ENDOVISION') {
-      activateProPlan('Pro via Chave Corporativa');
+    if (key === 'KORVYNPRO' || key === 'KORVYN' || key === 'CORVINPRO') {
+      activateProPlan('Pro Corporativo Korvyn');
     } else {
-      showToast('Chave inválida. Utilize a chave de demonstração: CORVINPRO', true);
+      showToast('Chave inválida. Utilize a chave oficial: KORVYNPRO', true);
     }
   });
 
@@ -508,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state.enhancedImageSrc) return;
     const a = document.createElement('a');
     a.href = state.enhancedImageSrc;
-    a.download = `endovision_${state.currentPreset}_${Date.now()}.png`;
+    a.download = `endovision_korvyn_${state.currentPreset}_${Date.now()}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

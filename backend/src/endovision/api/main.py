@@ -12,7 +12,7 @@ from endovision.api.schemas import HealthResponse
 
 app = FastAPI(
     title="EndoVision API",
-    description="Motor de Visão Computacional e Aprimoramento de Radiografias para Endodontia (Corvin)",
+    description="Motor de Visão Computacional e Aprimoramento de Radiografias para Endodontia (Korvyn)",
     version=__version__,
 )
 

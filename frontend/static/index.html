@@ -3,29 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EndoVision | Visão Computacional para Endodontia</title>
+  <title>EndoVision | Visão Computacional para Endodontia &bull; Criação Korvyn</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
   <!-- Top Navigation Bar -->
   <header class="app-header">
     <div class="header-left">
       <div class="brand">
-        <!-- Bespoke Logo: Dental Root Apex + Optical Focus Aperture -->
-        <div class="brand-symbol">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M7 3C8.5 7.5 9 13 11 18.5C11.5 19.8 12.5 19.8 13 18.5C15 13 15.5 7.5 17 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M12 4.5V17" stroke="var(--accent-glow)" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
-            <circle cx="12" cy="19" r="2.5" stroke="var(--accent-glow)" stroke-width="1.5"/>
-            <path d="M3 8V5H6M18 5H21V8M21 16V19H18M6 19H3V16" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
-          </svg>
+        <!-- Korvyn Metallic Raven Icon -->
+        <div class="brand-symbol korvyn-brand-avatar">
+          <img src="assets/korvyn_icon.png" alt="Korvyn Logo" class="korvyn-avatar-img">
         </div>
         <div class="brand-text">
           <span class="brand-name">EndoVision</span>
-          <span class="brand-corp">CORVIN HEALTH &bull; DENTAL TECH</span>
+          <span class="brand-corp">UMA CRIAÇÃO <strong>KORVYN</strong> &bull; ATENDIMENTO AUTOMATIZADO</span>
         </div>
       </div>
     </div>
@@ -107,12 +102,9 @@
       <!-- Empty Dropzone State -->
       <div class="empty-state" id="dropzone">
         <div class="empty-card">
-          <div class="empty-icon-wrap">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
+          <div class="empty-korvyn-badge">
+            <img src="assets/korvyn_icon.png" alt="Korvyn" class="empty-korvyn-logo">
+            <span>UMA CRIAÇÃO KORVYN</span>
           </div>
           <h2 class="empty-title">Carregue a radiografia periapical</h2>
           <p class="empty-desc">Arraste um arquivo ou foto de celular sobre o negatoscópio. Formatos suportados: TIFF, PNG, JPEG, RVG.</p>
@@ -129,7 +121,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            <span>Processamento local seguro &bull; Sem retenção de dados sensíveis</span>
+            <span>Processamento local seguro &bull; Tecnologia Korvyn &bull; Sem retenção de dados</span>
           </div>
         </div>
       </div>
@@ -259,19 +251,27 @@
         </div>
       </section>
 
-      <!-- Sponsored Ad Space (Monetização / Banners Odontológicos) -->
-      <section class="ad-banner-slot" id="adBannerSlot">
+      <!-- Sponsored Ad Space: Propaganda Oficial KORVYN -->
+      <section class="ad-banner-slot korvyn-ad-slot" id="adBannerSlot">
         <div class="ad-header">
-          <span class="ad-tag">Patrocinador Odonto</span>
+          <span class="ad-tag korvyn-tag">SOLUÇÕES KORVYN</span>
           <span class="ad-remove" id="adRemoveTrigger">Remover Anúncios &rarr;</span>
         </div>
         <div class="ad-content-box">
-          <div class="ad-badge-brand">DENTAL PARTNER &bull; CORVIN NETWORK</div>
-          <div class="ad-headline">Limas de NiTi Rotatórias com Tratamento Térmico Blue</div>
-          <p class="ad-subtext">Flexibilidade máxima para canais com curvaturas severas. Peça seu kit de teste clínico.</p>
-          <a href="#" class="ad-link-btn" onclick="alert('Espaço reservado para campanhas patrocinadas ou Google AdSense.'); return false;">
-            Conhecer Oferta Clínica
-          </a>
+          <div class="korvyn-ad-row">
+            <img src="assets/korvyn_icon.png" alt="Korvyn" class="korvyn-slot-thumb">
+            <div>
+              <div class="ad-badge-brand">KORVYN &bull; ATENDIMENTO AUTOMATIZADO</div>
+              <div class="ad-headline">Automatize o WhatsApp da sua Clínica</div>
+            </div>
+          </div>
+          <p class="ad-subtext">Agendamento inteligente 24h, triagem de pacientes e integração de prontuário com IA. Nunca mais perca um paciente por demora no atendimento.</p>
+          <button class="btn btn-primary btn-sm btn-full" id="btnContactKorvyn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            <span>Conhecer Soluções Korvyn</span>
+          </button>
         </div>
       </section>
 
@@ -298,31 +298,64 @@
   </main>
 
   <!-- ==========================================================================
-       Interstitial Ad Modal (Trava a partir do 2º uso: Assistir anúncio ou Pro)
+       Interstitial Video Ad Modal: Vídeo & Demonstração KORVYN
        ========================================================================== -->
   <div class="modal-backdrop hidden" id="modalInterstitialAd">
-    <div class="interstitial-card">
+    <div class="interstitial-card korvyn-interstitial-card">
       <div class="interstitial-header">
-        <div class="ad-pill">Publicidade Obrigatória &bull; Versão Gratuita</div>
-        <div class="ad-counter" id="adTimerCount">Aguarde 5s para prosseguir</div>
+        <div class="ad-pill korvyn-live-tag">
+          <span class="live-dot"></span>
+          VÍDEO KORVYN &bull; DEMONSTRAÇÃO DO SERVIÇO
+        </div>
+        <div class="ad-counter" id="adTimerCount">Assista 5s para continuar</div>
       </div>
 
-      <div class="interstitial-media">
-        <div class="ad-screen-simulation">
-          <div class="ad-icon-pulsing">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
+      <!-- Video / Animated Showcase Player Container -->
+      <div class="korvyn-video-showcase">
+        <!-- Video Top Header Bar with Logo -->
+        <div class="video-overlay-header">
+          <img src="assets/korvyn_logo.jpg" alt="Korvyn Atendimento Automatizado" class="video-korvyn-brand">
+          <span class="video-time-pill" id="videoElapsedTimer">0:01 / 0:05</span>
+        </div>
+
+        <!-- Simulated Video / Attendance Animation -->
+        <div class="video-screen-content">
+          <div class="chat-preview-wrap">
+            <div class="chat-bubble chat-user">
+              <span class="bubble-sender">Paciente (WhatsApp)</span>
+              <p>Olá, estou com muita dor no dente do fundo. Vocês atendem canal hoje?</p>
+              <span class="bubble-time">14:22</span>
+            </div>
+
+            <div class="chat-bubble chat-korvyn-bot">
+              <div class="bot-badge-line">
+                <img src="assets/korvyn_icon.png" alt="Korvyn" class="bot-avatar-tiny">
+                <span class="bubble-sender-bot">Korvyn Bot Inteligente</span>
+              </div>
+              <p>Olá! Sentimos muito pelo desconforto. Temos um horário de emergência hoje às 16h com o Dr. Marcos (Especialista em Endodontia). Deseja confirmar seu agendamento agora?</p>
+              <span class="bubble-time">14:22</span>
+            </div>
+
+            <div class="chat-bubble chat-user">
+              <p>Sim, por favor! Confirma para mim.</p>
+              <span class="bubble-time">14:23</span>
+            </div>
+
+            <div class="chat-bubble chat-korvyn-bot chat-success">
+              <p>&check; Agendamento realizado com sucesso! Cadastro e instruções pré-operatórias enviadas.</p>
+            </div>
           </div>
-          <h4>Sensor Digital Intraoral de Alta Definição RVG Pro</h4>
-          <p>Imagens radiográficas instantâneas com 25 pl/mm de resolução real. Parceria Oficial Corvin Dental Tech.</p>
-          <span class="ad-disclaimer">Anúncio de demonstração de patrocinador</span>
+        </div>
+
+        <!-- Video Progress Bar (fills up across 5 seconds) -->
+        <div class="video-progress-container">
+          <div class="video-progress-bar" id="videoProgressBar"></div>
         </div>
       </div>
 
       <div class="interstitial-actions">
         <button id="btnSkipAd" class="btn btn-secondary btn-full" disabled>
-          Aguarde a contagem...
+          Aguarde a reprodução do vídeo...
         </button>
         <button id="btnUpgradeFromAd" class="btn btn-pro btn-full">
           <span>Assinar EndoVision Pro (Sem Anúncios)</span>
@@ -339,9 +372,9 @@
       <button class="modal-close-btn" id="btnCloseProModal">&times;</button>
       
       <div class="pricing-header">
-        <div class="pricing-tag">CORVIN ENDOVISION PRO</div>
+        <div class="pricing-tag">KORVYN &bull; ENDOVISION PRO</div>
         <h3 class="pricing-title">Fluxo Clínico Fluido e Sem Interrupções</h3>
-        <p class="pricing-sub">Elimine anúncios e tempos de espera durante procedimentos cirúrgicos.</p>
+        <p class="pricing-sub">Elimine anúncios e vídeos durante seus atendimentos e cirurgias.</p>
       </div>
 
       <div class="pricing-tiers">
@@ -355,9 +388,9 @@
             <span class="period">,90/mês</span>
           </div>
           <ul class="tier-features">
-            <li>&check; <strong>Zero Anúncios</strong> e sem tempo de espera</li>
+            <li>&check; <strong>Zero Anúncios e Vídeos</strong></li>
             <li>&check; Processamento ilimitado de radiografias</li>
-            <li>&check; Exportação em resolução original sem compressão</li>
+            <li>&check; Exportação em resolução original médica</li>
             <li>&check; Cancele a qualquer momento sem fidelidade</li>
           </ul>
           <button class="btn btn-primary btn-full" id="btnSelectMonthly">
@@ -378,7 +411,7 @@
             <li>&check; Pagamento único para sempre</li>
             <li>&check; Sem mensalidades ou renovações</li>
             <li>&check; Todas as atualizações futuras incluídas</li>
-            <li>&check; Suporte prioritário da equipe Corvin</li>
+            <li>&check; Suporte prioritário da equipe Korvyn</li>
           </ul>
           <button class="btn btn-secondary btn-full" id="btnSelectLifetime">
             Garantir Licença Vitalícia
@@ -388,9 +421,9 @@
 
       <!-- Ativação Rápida de Demonstração -->
       <div class="license-key-area">
-        <span class="license-label">Já possui uma chave de ativação?</span>
+        <span class="license-label">Possui uma chave Korvyn?</span>
         <div class="license-input-group">
-          <input type="text" id="inputLicenseKey" placeholder="Ex: CORVINPRO" class="license-field">
+          <input type="text" id="inputLicenseKey" placeholder="Ex: KORVYNPRO" class="license-field">
           <button id="btnActivateLicense" class="btn btn-ghost">Ativar</button>
         </div>
       </div>

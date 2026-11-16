@@ -69,7 +69,7 @@ body {
   gap: 10px;
 }
 
-/* Bespoke Brand Symbol */
+/* Korvyn Brand Symbol */
 .brand {
   display: flex;
   align-items: center;
@@ -78,17 +78,24 @@ body {
   user-select: none;
 }
 
-.brand-symbol {
-  width: 34px;
-  height: 34px;
+.korvyn-brand-avatar {
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(145deg, #162031, #0c111c);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: #000;
+  border: 1px solid rgba(56, 189, 248, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-cyan);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.korvyn-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
 }
 
 .brand-text {
@@ -98,8 +105,8 @@ body {
 }
 
 .brand-name {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.98rem;
+  font-weight: 800;
   letter-spacing: -0.01em;
   color: #ffffff;
 }
@@ -110,6 +117,10 @@ body {
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
   margin-top: 2px;
+}
+
+.brand-corp strong {
+  color: var(--accent-cyan);
 }
 
 /* Segmented Control for Presets */
@@ -171,6 +182,11 @@ body {
   transition: var(--transition);
   text-decoration: none;
   white-space: nowrap;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.75rem;
 }
 
 .btn-primary {
@@ -259,12 +275,12 @@ body {
 .app-layout {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 330px;
   height: calc(100vh - 60px);
   overflow: hidden;
 }
 
-/* Viewport Stage (Clean Studio Lighting Vignette) */
+/* Viewport Stage */
 .stage-section {
   position: relative;
   background-color: #080a0f;
@@ -279,7 +295,7 @@ body {
 /* Empty Dropzone State */
 .empty-state {
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
 }
 
 .empty-card {
@@ -287,7 +303,7 @@ body {
   backdrop-filter: blur(16px);
   border: 1px dashed var(--border-medium);
   border-radius: var(--radius-lg);
-  padding: 40px 28px;
+  padding: 36px 28px;
   text-align: center;
   transition: var(--transition);
 }
@@ -297,22 +313,30 @@ body {
   background: rgba(56, 189, 248, 0.04);
 }
 
-.empty-icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  display: flex;
+.empty-korvyn-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--accent-cyan);
-  margin: 0 auto 16px auto;
+  margin-bottom: 16px;
+}
+
+.empty-korvyn-logo {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
 }
 
 .empty-title {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   letter-spacing: -0.01em;
   margin-bottom: 8px;
   color: #fff;
@@ -322,14 +346,14 @@ body {
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--text-secondary);
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .empty-buttons {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .empty-compliance {
@@ -337,7 +361,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--text-tertiary);
 }
 
@@ -353,7 +377,6 @@ body {
   justify-content: center;
 }
 
-/* Floating Zoom Bar */
 .viewport-controls {
   position: absolute;
   top: 16px;
@@ -397,7 +420,6 @@ body {
   padding: 0 8px;
 }
 
-/* Image Container */
 .image-stage {
   position: relative;
   max-width: 92%;
@@ -438,7 +460,6 @@ body {
   object-fit: contain;
 }
 
-/* Minimal Hairline Split Divider */
 .split-line {
   position: absolute;
   top: 0;
@@ -467,7 +488,6 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-/* Glassy Viewport Tags */
 .tag {
   position: absolute;
   bottom: 12px;
@@ -645,7 +665,6 @@ body {
   font-size: 0.75rem;
 }
 
-/* Minimal Slider */
 .minimal-slider {
   width: 100%;
   height: 3px;
@@ -674,7 +693,6 @@ body {
   line-height: 1.3;
 }
 
-/* Toggles */
 .toggle-group {
   display: flex;
   flex-direction: column;
@@ -698,33 +716,34 @@ body {
 }
 
 /* ==========================================================================
-   Sponsored Ad Banner Slot (Elegante & Não-Invasivo)
+   Propaganda Oficial KORVYN (In-App Ad Banner Slot)
    ========================================================================== */
-.ad-banner-slot {
-  background: linear-gradient(180deg, #121927, #0d121c);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+.ad-banner-slot.korvyn-ad-slot {
+  background: linear-gradient(180deg, #101624, #080c14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 14px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .ad-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.ad-tag {
-  font-size: 0.58rem;
-  font-weight: 700;
-  text-transform: uppercase;
+.ad-tag.korvyn-tag {
+  font-size: 0.6rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
-  color: var(--text-tertiary);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1px 5px;
-  border-radius: 3px;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .ad-remove {
@@ -739,10 +758,21 @@ body {
   text-decoration: underline;
 }
 
-.ad-content-box {
+.korvyn-ad-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.korvyn-slot-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: #000;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .ad-badge-brand {
@@ -753,29 +783,17 @@ body {
 }
 
 .ad-headline {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: #fff;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .ad-subtext {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
-  line-height: 1.35;
-}
-
-.ad-link-btn {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--accent-cyan);
-  text-decoration: none;
-  margin-top: 4px;
-  display: inline-block;
-}
-
-.ad-link-btn:hover {
-  text-decoration: underline;
+  line-height: 1.4;
+  margin-bottom: 10px;
 }
 
 /* Sidebar Footer */
@@ -787,13 +805,13 @@ body {
 }
 
 /* ==========================================================================
-   Modals: Interstitial Ad & Pro Pricing
+   Modals: Interstitial KORVYN Video Ad & Pricing
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(3, 5, 8, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 5, 8, 0.88);
+  backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -807,18 +825,17 @@ body {
   to { opacity: 1; }
 }
 
-/* Interstitial Card */
-.interstitial-card {
+.interstitial-card.korvyn-interstitial-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   background: #0d121c;
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+  padding: 22px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 25px rgba(56, 189, 248, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .interstitial-header {
@@ -827,64 +844,165 @@ body {
   align-items: center;
 }
 
-.ad-pill {
+.korvyn-live-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.06em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .ad-counter {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--accent-cyan);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.interstitial-media {
-  background: #06090e;
-  border: 1px solid var(--border-subtle);
+/* Simulated Video Player */
+.korvyn-video-showcase {
+  background: #05070c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
-  padding: 28px 20px;
-  text-align: center;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-.ad-icon-pulsing {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(56, 189, 248, 0.1);
-  color: var(--accent-cyan);
+.video-overlay-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(14, 18, 26, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.video-korvyn-brand {
+  height: 24px;
+  object-fit: contain;
+}
+
+.video-time-pill {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent-cyan);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.video-screen-content {
+  padding: 16px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  margin: 0 auto 14px auto;
-  animation: pulse 2s infinite;
+  background: radial-gradient(circle at 50% 30%, #0d1525 0%, #05070c 80%);
 }
 
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.3); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+.chat-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.interstitial-media h4 {
-  font-size: 1rem;
+.chat-bubble {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  position: relative;
+}
+
+.chat-user {
+  align-self: flex-start;
+  background: #1e293b;
+  color: #e2e8f0;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-korvyn-bot {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #0369a1, #0284c7);
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.chat-success {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  align-self: center;
+  text-align: center;
   font-weight: 600;
-  margin-bottom: 6px;
+  font-size: 0.72rem;
 }
 
-.interstitial-media p {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  margin-bottom: 12px;
+.bot-badge-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
 }
 
-.ad-disclaimer {
+.bot-avatar-tiny {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.bubble-sender {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.bubble-sender-bot {
   font-size: 0.65rem;
-  color: var(--text-tertiary);
+  font-weight: 700;
+  color: #e0f2fe;
+}
+
+.bubble-time {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
+  float: right;
+  margin-top: 4px;
+  margin-left: 6px;
+}
+
+.video-progress-container {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.video-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  transition: width 0.2s linear;
 }
 
 .interstitial-actions {
@@ -1025,7 +1143,6 @@ body {
   color: #fff;
 }
 
-/* License Key Input */
 .license-key-area {
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-subtle);
@@ -1081,7 +1198,6 @@ body {
   display: none !important;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .app-layout {
     grid-template-columns: 1fr;
