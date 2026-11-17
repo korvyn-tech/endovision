@@ -542,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
       syncUserUI();
 
       modalProPricing.classList.add('hidden');
-      showToast(`Acesso Pro ativado com sucesso pela chave ${key}! Processamento 100% liberado para a ABO.`);
+      showToast('Acesso Pro institucional ativado com sucesso! Processamento clínico 100% liberado.');
     } catch (err) {
       showToast(`Erro na ativação: ${err.message}`, true);
     }
@@ -551,13 +551,13 @@ document.addEventListener('DOMContentLoaded', () => {
   btnActivateLicense.addEventListener('click', () => {
     const key = (inputLicenseKey.value || '').trim().toUpperCase();
     if (!key) {
-      showToast('Digite uma chave para ativar (ex: ABOPRO)', true);
+      showToast('Digite seu código de ativação.', true);
       return;
     }
     activateVipKey(key);
   });
 
-  // Verificação de chave passada via Link de Convite (ex: endovision.app/?key=ABOPRO)
+  // Verificação de chave passada via Link de Convite (ex: endovision.app/?key=...)
   const urlParams = new URLSearchParams(window.location.search);
   const paramKey = (urlParams.get('key') || urlParams.get('convite') || urlParams.get('chave') || '').trim().toUpperCase();
   if (paramKey) {
@@ -568,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
       activateVipKey(paramKey);
     } else if (!state.token) {
       setTimeout(() => {
-        showToast(`Convite da ABO detectado (${paramKey})! Clique em "Entrar / Cadastrar" para liberar seu acesso.`);
+        showToast('Convite institucional detectado! Clique em "Entrar / Cadastrar" para liberar seu acesso Pro.');
       }, 1200);
     }
   }
