@@ -14,6 +14,12 @@ load_dotenv(dotenv_path=env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./endovision.db")
 
+# Garante que o diretório do arquivo SQLite exista
+if DATABASE_URL.startswith("sqlite"):
+    db_file_path = DATABASE_URL.replace("sqlite:////", "/").replace("sqlite:///", "")
+    if db_file_path and not db_file_path.startswith(":memory:"):
+        Path(db_file_path).parent.mkdir(parents=True, exist_ok=True)
+
 # Ajuste para SQLite multithread
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 

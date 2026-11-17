@@ -1,0 +1,13 @@
+services:
+  endovision:
+    build: .
+    container_name: endovision-app
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite:////app/data/endovision.db
