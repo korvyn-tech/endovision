@@ -15,7 +15,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia código-fonte e frontend
-COPY pyproject.toml .
+COPY pyproject.toml README.md ./
 COPY backend/ backend/
 COPY frontend/ frontend/
 
