@@ -1712,3 +1712,106 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Korvyn Institutional Contacts Section (Sidebar & Modals)
+   ========================================================================== */
+.korvyn-contacts-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.contacts-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.contacts-brand-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.contacts-brand-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.contacts-links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.contact-item svg {
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.contact-item:hover {
+  background: rgba(56, 189, 248, 0.06);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* Modal Korvyn Contacts */
+.modal-korvyn-contact {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.modal-contact-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-contact-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.contact-pill {
+  padding: 5px 10px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+}
+
+.contact-pill:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}

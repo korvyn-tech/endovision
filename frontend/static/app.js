@@ -246,8 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // CTA do Patrocinador Korvyn
   if (btnContactKorvyn) {
     btnContactKorvyn.addEventListener('click', () => {
-      showToast('Redirecionando para atendimento da Korvyn...');
-      window.open('https://api.whatsapp.com/send?text=Olá%20Korvyn!%20Conheci%20o%20EndoVision%20e%20quero%20automatizar%20o%20atendimento%20da%20minha%20clínica.', '_blank');
+      showToast('Redirecionando para WhatsApp da Korvyn: (35) 98425-3217...');
+      window.open('https://wa.me/5535984253217?text=Ol%C3%A1%20Korvyn!%20Conheci%20o%20EndoVision%20e%20quero%20automatizar%20o%20atendimento%20da%20minha%20cl%C3%ADnica.', '_blank');
     });
   }
 
