@@ -43,6 +43,20 @@ def get_db():
 
 
 def init_db():
-    """Cria todas as tabelas registradas se ainda não existirem."""
+    """Cria todas as tabelas registradas e garante colunas atualizadas."""
     from endovision.db import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+    # Migração suave para SQLite: adiciona colunas novas automaticamente
+    if DATABASE_URL.startswith("sqlite") and ":memory:" not in DATABASE_URL:
+        with engine.connect() as conn:
+            try:
+                res = conn.exec_driver_sql("PRAGMA table_info(users)").fetchall()
+                existing_cols = {row[1] for row in res}
+                if "cpf" not in existing_cols:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN cpf VARCHAR(20)")
+                if "phone" not in existing_cols:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN phone VARCHAR(30)")
+                conn.commit()
+            except Exception:
+                pass
