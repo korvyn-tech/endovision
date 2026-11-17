@@ -1,10 +1,10 @@
 services:
   endovision:
     build: .
-    container_name: endovision-app
+    container_name: endovision
     restart: always
     ports:
-      - "8000:8000"
+      - "8085:8000"
     volumes:
       - ./data:/app/data
     env_file:
