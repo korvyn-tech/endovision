@@ -35,7 +35,7 @@ class AsaasClient:
         return httpx.Client(headers=self.headers, timeout=20.0)
 
     def _check_resp(self, resp: httpx.Response) -> None:
-        if resp.is_error:
+        if resp.status_code >= 400:
             try:
                 err_data = resp.json()
                 errors = err_data.get("errors", [])
@@ -44,21 +44,52 @@ class AsaasClient:
                 desc = resp.text
             raise RuntimeError(f"Asaas API ({resp.status_code}): {desc}")
 
-    def get_or_create_customer(self, db: Session, user: User) -> str:
+    def get_or_create_customer(
+        self,
+        db: Session,
+        user: User,
+        cpf_cnpj: Optional[str] = None,
+        phone: Optional[str] = None,
+    ) -> str:
         """Obtém ou cadastra o cliente no Asaas. Retorna o ID do cliente (cus_...)."""
-        if user.asaas_customer_id:
-            return user.asaas_customer_id
+        user_cpf = getattr(user, "cpf", "") or ""
+        user_phone = getattr(user, "phone", "") or ""
+        clean_cpf = "".join(filter(str.isdigit, cpf_cnpj or user_cpf)) or None
+        clean_phone = "".join(filter(str.isdigit, phone or user_phone)) or None
+
+        if hasattr(user, "cpf") and clean_cpf and user.cpf != clean_cpf:
+            user.cpf = clean_cpf
+            db.commit()
+        if hasattr(user, "phone") and clean_phone and user.phone != clean_phone:
+            user.phone = clean_phone
+            db.commit()
 
         with self._client() as client:
-            # Tenta buscar por e-mail primeiro
-            resp = client.get(f"{self.base_url}/customers", params={"email": user.email})
-            if resp.status_code == 200:
-                data = resp.json().get("data", [])
-                if data:
-                    cus_id = data[0]["id"]
-                    user.asaas_customer_id = cus_id
-                    db.commit()
-                    return cus_id
+            cus_id = user.asaas_customer_id
+            if not cus_id:
+                # Tenta buscar por e-mail primeiro
+                resp = client.get(f"{self.base_url}/customers", params={"email": user.email})
+                if resp.status_code == 200:
+                    data = resp.json().get("data", [])
+                    if data:
+                        cus_id = data[0]["id"]
+                        user.asaas_customer_id = cus_id
+                        db.commit()
+
+            if cus_id:
+                # Atualiza dados no Asaas se fornecidos
+                update_payload = {}
+                if clean_cpf:
+                    update_payload["cpfCnpj"] = clean_cpf
+                if clean_phone:
+                    update_payload["mobilePhone"] = clean_phone
+                if update_payload:
+                    try:
+                        up_resp = client.post(f"{self.base_url}/customers/{cus_id}", json=update_payload)
+                        self._check_resp(up_resp)
+                    except Exception:
+                        pass
+                return cus_id
 
             # Se não existir, cadastra novo cliente
             payload = {
@@ -67,6 +98,11 @@ class AsaasClient:
                 "externalReference": f"user_{user.id}",
                 "notificationDisabled": False,
             }
+            if clean_cpf:
+                payload["cpfCnpj"] = clean_cpf
+            if clean_phone:
+                payload["mobilePhone"] = clean_phone
+
             create_resp = client.post(f"{self.base_url}/customers", json=payload)
             self._check_resp(create_resp)
             cus_data = create_resp.json()
@@ -75,9 +111,16 @@ class AsaasClient:
             db.commit()
             return cus_id
 
-    def create_order(self, db: Session, user: User, plan_type: str) -> Dict[str, Any]:
+    def create_order(
+        self,
+        db: Session,
+        user: User,
+        plan_type: str,
+        cpf_cnpj: Optional[str] = None,
+        phone: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Cria cobrança Pix (vitalícia ou assinatura mensal) e retorna dados do Pix."""
-        customer_id = self.get_or_create_customer(db, user)
+        customer_id = self.get_or_create_customer(db, user, cpf_cnpj=cpf_cnpj, phone=phone)
 
         due_date = (datetime.now(timezone.utc) + timedelta(days=2)).strftime("%Y-%m-%d")
 

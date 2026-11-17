@@ -26,7 +26,13 @@ def create_order(
 ):
     """Gera uma cobrança Pix no Asaas (Assinatura mensal ou Vitalício)."""
     try:
-        order_data = asaas_client.create_order(db, user, req.plan_type)
+        order_data = asaas_client.create_order(
+            db,
+            user,
+            req.plan_type,
+            cpf_cnpj=req.cpf_cnpj,
+            phone=req.phone,
+        )
         return CreateOrderResponse(**order_data)
     except Exception as exc:
         logger.exception("Erro ao gerar cobrança no Asaas: %s", exc)

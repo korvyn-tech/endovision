@@ -23,6 +23,8 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     plan = Column(String(50), default="free", nullable=False)  # free, pro_monthly, pro_lifetime
+    cpf = Column(String(20), nullable=True)
+    phone = Column(String(30), nullable=True)
     asaas_customer_id = Column(String(100), nullable=True, index=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 

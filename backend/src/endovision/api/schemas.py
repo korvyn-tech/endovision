@@ -80,6 +80,8 @@ class AuthResponse(BaseModel):
 
 class CreateOrderRequest(BaseModel):
     plan_type: str = Field(..., pattern="^(monthly|lifetime)$")
+    cpf_cnpj: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class CreateOrderResponse(BaseModel):
