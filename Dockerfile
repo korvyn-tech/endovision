@@ -25,6 +25,7 @@ RUN pip install --no-cache-dir -e .
 EXPOSE 8000
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/backend/src
 ENV DATABASE_URL=sqlite:////app/data/endovision.db
 
 CMD ["uvicorn", "endovision.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
