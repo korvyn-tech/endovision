@@ -34,6 +34,16 @@ class AsaasClient:
     def _client(self) -> httpx.Client:
         return httpx.Client(headers=self.headers, timeout=20.0)
 
+    def _check_resp(self, resp: httpx.Response) -> None:
+        if resp.is_error:
+            try:
+                err_data = resp.json()
+                errors = err_data.get("errors", [])
+                desc = "; ".join([e.get("description", str(e)) for e in errors]) if errors else resp.text
+            except Exception:
+                desc = resp.text
+            raise RuntimeError(f"Asaas API ({resp.status_code}): {desc}")
+
     def get_or_create_customer(self, db: Session, user: User) -> str:
         """Obtém ou cadastra o cliente no Asaas. Retorna o ID do cliente (cus_...)."""
         if user.asaas_customer_id:
@@ -58,7 +68,7 @@ class AsaasClient:
                 "notificationDisabled": False,
             }
             create_resp = client.post(f"{self.base_url}/customers", json=payload)
-            create_resp.raise_for_status()
+            self._check_resp(create_resp)
             cus_data = create_resp.json()
             cus_id = cus_data["id"]
             user.asaas_customer_id = cus_id
@@ -85,13 +95,13 @@ class AsaasClient:
                     "externalReference": f"user_{user.id}_monthly",
                 }
                 sub_resp = client.post(f"{self.base_url}/subscriptions", json=sub_payload)
-                sub_resp.raise_for_status()
+                self._check_resp(sub_resp)
                 sub_data = sub_resp.json()
                 sub_id = sub_data["id"]
 
                 # Busca a primeira cobrança gerada pela assinatura para obter o QR Code Pix
                 payments_resp = client.get(f"{self.base_url}/subscriptions/{sub_id}/payments")
-                payments_resp.raise_for_status()
+                self._check_resp(payments_resp)
                 payments_data = payments_resp.json().get("data", [])
                 if not payments_data:
                     raise RuntimeError("Falha ao recuperar primeira cobrança da assinatura.")
@@ -111,7 +121,7 @@ class AsaasClient:
                     "externalReference": f"user_{user.id}_lifetime",
                 }
                 pay_resp = client.post(f"{self.base_url}/payments", json=pay_payload)
-                pay_resp.raise_for_status()
+                self._check_resp(pay_resp)
                 payment_data = pay_resp.json()
                 payment_id = payment_data["id"]
                 invoice_url = payment_data.get("invoiceUrl")
@@ -120,7 +130,7 @@ class AsaasClient:
 
             # Busca o QR Code e código Copia e Cola do Pix
             qr_resp = client.get(f"{self.base_url}/payments/{payment_id}/pixQrCode")
-            qr_resp.raise_for_status()
+            self._check_resp(qr_resp)
             qr_data = qr_resp.json()
 
             pix_payload = qr_data.get("payload")
