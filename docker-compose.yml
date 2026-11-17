@@ -8,6 +8,6 @@ services:
     volumes:
       - ./data:/app/data
     env_file:
-      - .env
+      - .env.production
     environment:
       - DATABASE_URL=sqlite:////app/data/endovision.db
