@@ -17,8 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     debounceTimer: null,
     usageCount: parseInt(localStorage.getItem('endovision_usage_count') || '0', 10),
     isPro: localStorage.getItem('endovision_is_pro') === 'true',
+    user: JSON.parse(localStorage.getItem('endovision_user') || 'null'),
+    token: localStorage.getItem('endovision_token') || null,
+    pendingPlan: null,
     adCountdownTimer: null,
     videoProgressInterval: null,
+    pixPollInterval: null,
   };
 
   // Elementos do DOM
@@ -69,6 +73,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSelectLifetime = document.getElementById('btnSelectLifetime');
   const inputLicenseKey = document.getElementById('inputLicenseKey');
   const btnActivateLicense = document.getElementById('btnActivateLicense');
+
+  // Elementos de Autenticação
+  const btnOpenAuthModal = document.getElementById('btnOpenAuthModal');
+  const userProfileBadge = document.getElementById('userProfileBadge');
+  const userAvatarText = document.getElementById('userAvatarText');
+  const userNameText = document.getElementById('userNameText');
+  const userPlanPill = document.getElementById('userPlanPill');
+  const btnLogout = document.getElementById('btnLogout');
+  const modalAuth = document.getElementById('modalAuth');
+  const btnCloseAuthModal = document.getElementById('btnCloseAuthModal');
+  const tabLoginBtn = document.getElementById('tabLoginBtn');
+  const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+  const formLogin = document.getElementById('formLogin');
+  const formRegister = document.getElementById('formRegister');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginErrorMsg = document.getElementById('loginErrorMsg');
+  const registerName = document.getElementById('registerName');
+  const registerEmail = document.getElementById('registerEmail');
+  const registerPassword = document.getElementById('registerPassword');
+  const registerErrorMsg = document.getElementById('registerErrorMsg');
+
+  // Elementos do Checkout Asaas Pix
+  const modalPixCheckout = document.getElementById('modalPixCheckout');
+  const btnClosePixModal = document.getElementById('btnClosePixModal');
+  const pixPlanTitle = document.getElementById('pixPlanTitle');
+  const pixAmountPill = document.getElementById('pixAmountPill');
+  const pixLoadingState = document.getElementById('pixLoadingState');
+  const pixContent = document.getElementById('pixContent');
+  const pixQrImage = document.getElementById('pixQrImage');
+  const pixCopyInput = document.getElementById('pixCopyInput');
+  const btnCopyPix = document.getElementById('btnCopyPix');
+  const pixStatusText = document.getElementById('pixStatusText');
+  const pixInvoiceExternalLink = document.getElementById('pixInvoiceExternalLink');
+  const pixSuccessScreen = document.getElementById('pixSuccessScreen');
+  const btnFinishSuccess = document.getElementById('btnFinishSuccess');
 
   // Zoom
   const btnZoomIn = document.getElementById('btnZoomIn');
@@ -147,7 +187,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  syncProStatus();
+  function syncUserUI() {
+    if (state.user && state.token) {
+      if (btnOpenAuthModal) btnOpenAuthModal.classList.add('hidden');
+      if (userProfileBadge) userProfileBadge.classList.remove('hidden');
+      if (userNameText) userNameText.textContent = state.user.name ? state.user.name.split(' ')[0] : 'Doutor(a)';
+      if (userAvatarText) {
+        const initials = state.user.name ? state.user.name.split(' ').map(p => p[0]).slice(0, 2).join('') : 'DR';
+        userAvatarText.textContent = initials.toUpperCase();
+      }
+
+      const isUserPro = state.user.is_pro || state.user.plan === 'pro_monthly' || state.user.plan === 'pro_lifetime';
+      if (isUserPro) {
+        state.isPro = true;
+        localStorage.setItem('endovision_is_pro', 'true');
+        if (userPlanPill) {
+          userPlanPill.textContent = state.user.plan === 'pro_lifetime' ? '★ Pro Vitalício' : '★ Pro Mensal';
+          userPlanPill.classList.add('pro');
+        }
+      } else {
+        if (userPlanPill) {
+          userPlanPill.textContent = 'Plano Grátis';
+          userPlanPill.classList.remove('pro');
+        }
+      }
+    } else {
+      if (btnOpenAuthModal) btnOpenAuthModal.classList.remove('hidden');
+      if (userProfileBadge) userProfileBadge.classList.add('hidden');
+    }
+    syncProStatus();
+  }
+
+  // Verifica validade do token na inicialização
+  async function fetchUserProfile() {
+    if (!state.token) {
+      syncUserUI();
+      return;
+    }
+    try {
+      const res = await fetch('/api/v1/auth/me', {
+        headers: { 'Authorization': `Bearer ${state.token}` }
+      });
+      if (res.ok) {
+        const userData = await res.json();
+        state.user = userData;
+        localStorage.setItem('endovision_user', JSON.stringify(userData));
+        syncUserUI();
+      } else {
+        logoutUser(false);
+      }
+    } catch (e) {
+      syncUserUI();
+    }
+  }
+
+  fetchUserProfile();
 
   // CTA do Patrocinador Korvyn
   if (btnContactKorvyn) {
@@ -405,12 +499,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Ações de Assinatura via Asaas
   btnSelectMonthly.addEventListener('click', () => {
-    activateProPlan('Mensal (R$ 29,90/mês)');
+    initiateAsaasCheckout('monthly');
   });
 
   btnSelectLifetime.addEventListener('click', () => {
-    activateProPlan('Vitalício (R$ 149)');
+    initiateAsaasCheckout('lifetime');
   });
 
   // Ativação por Chave (Demo: KORVYNPRO ou KORVYN)
@@ -422,6 +517,272 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Chave inválida. Utilize a chave oficial: KORVYNPRO', true);
     }
   });
+
+  // ==========================================
+  // 4.1 Autenticação e Gestão de Usuário
+  // ==========================================
+  if (btnOpenAuthModal) {
+    btnOpenAuthModal.addEventListener('click', () => {
+      modalAuth.classList.remove('hidden');
+    });
+  }
+
+  if (btnCloseAuthModal) {
+    btnCloseAuthModal.addEventListener('click', () => {
+      modalAuth.classList.add('hidden');
+    });
+  }
+
+  if (tabLoginBtn && tabRegisterBtn) {
+    tabLoginBtn.addEventListener('click', () => {
+      tabLoginBtn.classList.add('active');
+      tabRegisterBtn.classList.remove('active');
+      formLogin.classList.remove('hidden');
+      formRegister.classList.add('hidden');
+      if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
+    });
+
+    tabRegisterBtn.addEventListener('click', () => {
+      tabRegisterBtn.classList.add('active');
+      tabLoginBtn.classList.remove('active');
+      formRegister.classList.remove('hidden');
+      formLogin.classList.add('hidden');
+      if (registerErrorMsg) registerErrorMsg.classList.add('hidden');
+    });
+  }
+
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginErrorMsg.classList.add('hidden');
+      const submitBtn = document.getElementById('btnSubmitLogin');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Autenticando...';
+
+      try {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: loginEmail.value.trim(),
+            password: loginPassword.value
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Falha ao autenticar.');
+        }
+
+        state.token = data.token;
+        state.user = data.user;
+        localStorage.setItem('endovision_token', data.token);
+        localStorage.setItem('endovision_user', JSON.stringify(data.user));
+
+        modalAuth.classList.add('hidden');
+        showToast(`Bem-vindo(a), ${data.user.name}!`);
+        syncUserUI();
+
+        if (state.pendingPlan) {
+          const plan = state.pendingPlan;
+          state.pendingPlan = null;
+          initiateAsaasCheckout(plan);
+        }
+      } catch (err) {
+        loginErrorMsg.textContent = err.message;
+        loginErrorMsg.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar no EndoVision';
+      }
+    });
+  }
+
+  if (formRegister) {
+    formRegister.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      registerErrorMsg.classList.add('hidden');
+      const submitBtn = document.getElementById('btnSubmitRegister');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Criando conta...';
+
+      try {
+        const res = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: registerName.value.trim(),
+            email: registerEmail.value.trim(),
+            password: registerPassword.value
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Falha ao criar conta.');
+        }
+
+        state.token = data.token;
+        state.user = data.user;
+        localStorage.setItem('endovision_token', data.token);
+        localStorage.setItem('endovision_user', JSON.stringify(data.user));
+
+        modalAuth.classList.add('hidden');
+        showToast(`Conta criada com sucesso! Olá, ${data.user.name}.`);
+        syncUserUI();
+
+        if (state.pendingPlan) {
+          const plan = state.pendingPlan;
+          state.pendingPlan = null;
+          initiateAsaasCheckout(plan);
+        }
+      } catch (err) {
+        registerErrorMsg.textContent = err.message;
+        registerErrorMsg.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Criar Minha Conta';
+      }
+    });
+  }
+
+  function logoutUser(showNotification = true) {
+    state.token = null;
+    state.user = null;
+    state.isPro = false;
+    localStorage.removeItem('endovision_token');
+    localStorage.removeItem('endovision_user');
+    localStorage.removeItem('endovision_is_pro');
+    syncUserUI();
+    if (showNotification) showToast('Você saiu da sua conta.');
+  }
+
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => logoutUser(true));
+  }
+
+  // ==========================================
+  // 4.2 Checkout Asaas Pix em Tempo Real
+  // ==========================================
+  async function initiateAsaasCheckout(planType) {
+    if (!state.token) {
+      state.pendingPlan = planType;
+      modalProPricing.classList.add('hidden');
+      modalAuth.classList.remove('hidden');
+      showToast('Por favor, faça login ou crie sua conta para vincular seu Plano Pro.');
+      return;
+    }
+
+    modalProPricing.classList.add('hidden');
+    modalPixCheckout.classList.remove('hidden');
+
+    pixLoadingState.classList.remove('hidden');
+    pixContent.classList.add('hidden');
+    pixSuccessScreen.classList.add('hidden');
+
+    pixPlanTitle.textContent = planType === 'lifetime' 
+      ? 'EndoVision Pro • Acesso Vitalício' 
+      : 'EndoVision Pro • Assinatura Mensal';
+    pixAmountPill.textContent = planType === 'lifetime' ? 'R$ 149,00' : 'R$ 29,90/mês';
+
+    clearInterval(state.pixPollInterval);
+
+    try {
+      const res = await fetch('/api/v1/billing/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.token}`
+        },
+        body: JSON.stringify({ plan_type: planType })
+      });
+
+      const order = await res.json();
+      if (!res.ok) {
+        throw new Error(order.detail || 'Não foi possível gerar a cobrança no Asaas.');
+      }
+
+      pixLoadingState.classList.add('hidden');
+      pixContent.classList.remove('hidden');
+
+      // Exibe QR Code Pix (aceita tanto data: quanto raw base64)
+      const qrData = order.pix_qr_code || '';
+      pixQrImage.src = qrData.startsWith('data:') ? qrData : ('data:image/png;base64,' + qrData);
+      pixCopyInput.value = order.pix_copy_paste || '';
+
+      if (order.invoice_url) {
+        pixInvoiceExternalLink.href = order.invoice_url;
+        pixInvoiceExternalLink.classList.remove('hidden');
+      } else {
+        pixInvoiceExternalLink.classList.add('hidden');
+      }
+
+      // Inicia verificação automática a cada 3 segundos
+      startPixPolling(order.payment_id, planType);
+    } catch (err) {
+      modalPixCheckout.classList.add('hidden');
+      showToast(`Erro ao gerar Pix: ${err.message}`, true);
+    }
+  }
+
+  function startPixPolling(paymentId, planType) {
+    clearInterval(state.pixPollInterval);
+    state.pixPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/v1/billing/status/${paymentId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.is_paid) {
+          clearInterval(state.pixPollInterval);
+          state.isPro = true;
+          localStorage.setItem('endovision_is_pro', 'true');
+          if (state.user) {
+            state.user.is_pro = true;
+            state.user.plan = data.user_plan;
+            localStorage.setItem('endovision_user', JSON.stringify(state.user));
+          }
+          syncUserUI();
+
+          pixContent.classList.add('hidden');
+          pixSuccessScreen.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.warn('Polling error:', err);
+      }
+    }, 3000);
+  }
+
+  if (btnClosePixModal) {
+    btnClosePixModal.addEventListener('click', () => {
+      modalPixCheckout.classList.add('hidden');
+      clearInterval(state.pixPollInterval);
+    });
+  }
+
+  if (btnFinishSuccess) {
+    btnFinishSuccess.addEventListener('click', () => {
+      modalPixCheckout.classList.add('hidden');
+      clearInterval(state.pixPollInterval);
+      if (state.currentFile) {
+        processImage();
+      }
+    });
+  }
+
+  if (btnCopyPix) {
+    btnCopyPix.addEventListener('click', async () => {
+      if (!pixCopyInput.value) return;
+      try {
+        await navigator.clipboard.writeText(pixCopyInput.value);
+        showToast('Código Pix Copia e Cola copiado com sucesso!');
+      } catch (err) {
+        pixCopyInput.select();
+        document.execCommand('copy');
+        showToast('Código Pix copiado!');
+      }
+    });
+  }
 
   // ==========================================
   // 5. Processamento via API REST

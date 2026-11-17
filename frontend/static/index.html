@@ -80,6 +80,30 @@
 
     <!-- Actions Area -->
     <div class="header-right">
+      <!-- User Profile / Auth Area -->
+      <div id="userAuthContainer" class="user-auth-box">
+        <button id="btnOpenAuthModal" class="btn btn-ghost btn-sm" title="Entrar ou criar conta">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Entrar / Cadastrar</span>
+        </button>
+
+        <div id="userProfileBadge" class="user-profile-badge hidden">
+          <div class="user-avatar-initials" id="userAvatarText">DR</div>
+          <div class="user-info-text">
+            <span class="user-name" id="userNameText">Doutor(a)</span>
+            <span class="user-plan-pill" id="userPlanPill">Plano Grátis</span>
+          </div>
+          <button id="btnLogout" class="btn-logout" title="Sair da conta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <!-- PWA Install Button (aparece no celular ou navegador suportado) -->
       <button id="btnInstallPwa" class="btn btn-ghost btn-sm hidden" title="Instalar aplicativo no celular ou desktop">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -477,6 +501,132 @@
         <div class="license-input-group">
           <input type="text" id="inputLicenseKey" placeholder="Ex: KORVYNPRO" class="license-field">
           <button id="btnActivateLicense" class="btn btn-ghost">Ativar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal de Autenticação (Login & Cadastro)
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="modalAuth">
+    <div class="auth-card">
+      <button class="modal-close-btn" id="btnCloseAuthModal">&times;</button>
+      <div class="auth-header">
+        <div class="auth-tag">KORVYN &bull; ACESSO PROFISSIONAL</div>
+        <h3 class="auth-title">EndoVision Cloud</h3>
+        <p class="auth-subtitle">Acesse sua conta para sincronizar seu plano Pro e radiografias.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabLoginBtn">Entrar</button>
+        <button class="auth-tab-btn" id="tabRegisterBtn">Criar Conta</button>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form id="formLogin" class="auth-form">
+        <div class="form-group">
+          <label for="loginEmail">E-mail Clínico</label>
+          <input type="email" id="loginEmail" required placeholder="dr.exemplo@clinica.com" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Senha</label>
+          <input type="password" id="loginPassword" required placeholder="Sua senha secreta" class="form-input">
+        </div>
+        <div id="loginErrorMsg" class="auth-error-msg hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="btnSubmitLogin">
+          <span>Entrar no EndoVision</span>
+        </button>
+      </form>
+
+      <!-- Formulário de Cadastro -->
+      <form id="formRegister" class="auth-form hidden">
+        <div class="form-group">
+          <label for="registerName">Nome Completo / Especialidade</label>
+          <input type="text" id="registerName" required placeholder="Dr(a). Seu Nome" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">E-mail Clínico</label>
+          <input type="email" id="registerEmail" required placeholder="dr.exemplo@clinica.com" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Criar Senha (mínimo 6 caracteres)</label>
+          <input type="password" id="registerPassword" required minlength="6" placeholder="Mínimo 6 caracteres" class="form-input">
+        </div>
+        <div id="registerErrorMsg" class="auth-error-msg hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="btnSubmitRegister">
+          <span>Criar Minha Conta</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal de Checkout Asaas Pix em Tempo Real
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="modalPixCheckout">
+    <div class="pix-card">
+      <button class="modal-close-btn" id="btnClosePixModal">&times;</button>
+      <div class="pix-header">
+        <div class="pix-tag">PAGAMENTO SEGURO &bull; ASAAS &bull; KORVYN</div>
+        <h3 class="pix-title" id="pixPlanTitle">Ativação do Plano Pro</h3>
+        <div class="pix-amount-pill" id="pixAmountPill">R$ 29,90</div>
+      </div>
+
+      <div class="pix-body">
+        <div class="pix-loading-state" id="pixLoadingState">
+          <div class="spinner-medical"></div>
+          <p>Conectando ao gateway Asaas e gerando chave Pix...</p>
+        </div>
+
+        <div class="pix-content hidden" id="pixContent">
+          <!-- QR Code Container -->
+          <div class="pix-qrcode-frame">
+            <img id="pixQrImage" src="" alt="QR Code Pix Asaas" class="pix-qr-img">
+          </div>
+
+          <p class="pix-instructions">
+            Abra o app do seu banco, escolha <strong>Pagar via Pix</strong> e aponte a câmera para o QR Code acima, ou copie o código abaixo:
+          </p>
+
+          <!-- Copia e Cola -->
+          <div class="pix-copy-box">
+            <input type="text" id="pixCopyInput" readonly class="pix-copy-input">
+            <button id="btnCopyPix" class="btn btn-primary btn-copy-pix" title="Copiar código">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copiar Chave Pix</span>
+            </button>
+          </div>
+
+          <!-- Real-time Status Badge -->
+          <div class="pix-status-box" id="pixStatusBox">
+            <div class="pulse-dot"></div>
+            <span id="pixStatusText">Aguardando confirmação do pagamento pelo banco...</span>
+          </div>
+
+          <!-- Alternativa de Cartão / Fatura Asaas -->
+          <div class="pix-footer-link">
+            <a id="pixInvoiceExternalLink" href="#" target="_blank" rel="noopener noreferrer">
+              Prefere pagar com Cartão de Crédito? Clique aqui para abrir a fatura no Asaas &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Success Celebration Screen -->
+        <div class="pix-success-screen hidden" id="pixSuccessScreen">
+          <div class="success-checkmark-circle">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h3 class="success-title">Pagamento Confirmado!</h3>
+          <p class="success-desc">Seu plano <strong>EndoVision Pro</strong> foi ativado com sucesso. Aproveite o processamento ilimitado e sem anúncios!</p>
+          <button id="btnFinishSuccess" class="btn btn-primary btn-full">
+            Começar a Usar Agora
+          </button>
         </div>
       </div>
     </div>

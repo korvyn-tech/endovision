@@ -1,7 +1,8 @@
 """Modelos Pydantic de dados para a API do EndoVision."""
 
 from __future__ import annotations
-from typing import Any
+
+from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
@@ -38,3 +39,54 @@ class HealthResponse(BaseModel):
     status: str
     app: str
     version: str
+
+
+# --- Schemas de Autenticação ---
+
+class RegisterRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    email: str = Field(..., min_length=5, max_length=255, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    password: str = Field(..., min_length=6)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    password: str = Field(..., min_length=1)
+
+
+class UserProfile(BaseModel):
+    id: int
+    name: str
+    email: str
+    plan: str
+    is_pro: bool
+
+
+class AuthResponse(BaseModel):
+    user: UserProfile
+    token: str
+
+
+# --- Schemas de Cobrança / Asaas ---
+
+class CreateOrderRequest(BaseModel):
+    plan_type: str = Field(..., pattern="^(monthly|lifetime)$")
+
+
+class CreateOrderResponse(BaseModel):
+    order_id: int
+    payment_id: str
+    plan_type: str
+    value: float
+    status: str
+    pix_copy_paste: Optional[str] = None
+    pix_qr_code: Optional[str] = None
+    invoice_url: Optional[str] = None
+
+
+class PaymentStatusResponse(BaseModel):
+    order_id: int
+    payment_id: str
+    status: str
+    is_paid: bool
+    user_plan: str

@@ -1277,6 +1277,373 @@ body {
   display: none !important;
 }
 
+/* ==========================================================================
+   User Auth Badge & Headers
+   ========================================================================== */
+.user-auth-box {
+  display: flex;
+  align-items: center;
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+}
+
+.user-avatar-initials {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #07090d;
+}
+
+.user-info-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.user-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-plan-pill {
+  font-size: 0.65rem;
+  color: var(--accent-cyan);
+}
+
+.user-plan-pill.pro {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.btn-logout {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.btn-logout:hover {
+  color: #f87171;
+}
+
+/* ==========================================================================
+   Auth Modal & Forms
+   ========================================================================== */
+.auth-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 420px;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.auth-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.auth-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 20px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-tab-btn.active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+}
+
+.auth-form .form-group {
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.auth-form label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.auth-form .form-input {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.auth-form .form-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.15);
+}
+
+.auth-error-msg {
+  color: #f87171;
+  font-size: 0.75rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Pix Checkout Modal (Asaas)
+   ========================================================================== */
+.pix-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 440px;
+  padding: 26px;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);
+}
+
+.pix-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.pix-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.pix-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.pix-amount-pill {
+  display: inline-block;
+  background: rgba(0, 210, 255, 0.1);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 1.05rem;
+}
+
+.pix-loading-state {
+  text-align: center;
+  padding: 30px 10px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.pix-qrcode-frame {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  width: 210px;
+  height: 210px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.pix-qr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pix-instructions {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.pix-copy-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pix-copy-input {
+  flex: 1;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  outline: none;
+}
+
+.btn-copy-pix {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.pix-status-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  animation: pulseDot 1.5s infinite;
+}
+
+.pix-footer-link {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.pix-footer-link a {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.pix-footer-link a:hover {
+  color: var(--accent-cyan);
+  text-decoration: underline;
+}
+
+.pix-success-screen {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.success-checkmark-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  border: 2px solid #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.success-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 6px;
+}
+
+.success-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.spinner-medical {
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid var(--accent-cyan);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin: 16px auto 10px;
+}
+
+@keyframes pulseDot {
+  0% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 0.3; transform: scale(0.9); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 @media (max-width: 900px) {
   .app-layout {
     grid-template-columns: 1fr;
