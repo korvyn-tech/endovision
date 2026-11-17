@@ -508,15 +508,70 @@ document.addEventListener('DOMContentLoaded', () => {
     initiateAsaasCheckout('lifetime');
   });
 
-  // Ativação por Chave (Demo: KORVYNPRO ou KORVYN)
+  // Ativação de Chaves de Teste / Parcerias (ABO - Associação Brasileira de Odontologia & Korvyn)
+  async function activateVipKey(key) {
+    if (!state.token) {
+      state.pendingVipKey = key;
+      modalProPricing.classList.add('hidden');
+      modalAuth.classList.remove('hidden');
+      showToast(`Chave ${key} detectada! Entre ou crie sua conta para vincular seu acesso Pro gratuito.`);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/v1/auth/activate-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.token}`
+        },
+        body: JSON.stringify({ key: key })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Falha ao ativar chave.');
+      }
+
+      state.token = data.token;
+      state.user = data.user;
+      state.isPro = true;
+      localStorage.setItem('endovision_token', data.token);
+      localStorage.setItem('endovision_user', JSON.stringify(data.user));
+      localStorage.setItem('endovision_is_pro', 'true');
+      syncUserUI();
+
+      modalProPricing.classList.add('hidden');
+      showToast(`Acesso Pro ativado com sucesso pela chave ${key}! Processamento 100% liberado para a ABO.`);
+    } catch (err) {
+      showToast(`Erro na ativação: ${err.message}`, true);
+    }
+  }
+
   btnActivateLicense.addEventListener('click', () => {
     const key = (inputLicenseKey.value || '').trim().toUpperCase();
-    if (key === 'KORVYNPRO' || key === 'KORVYN' || key === 'CORVINPRO') {
-      activateProPlan('Pro Corporativo Korvyn');
-    } else {
-      showToast('Chave inválida. Utilize a chave oficial: KORVYNPRO', true);
+    if (!key) {
+      showToast('Digite uma chave para ativar (ex: ABOPRO)', true);
+      return;
     }
+    activateVipKey(key);
   });
+
+  // Verificação de chave passada via Link de Convite (ex: endovision.app/?key=ABOPRO)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramKey = (urlParams.get('key') || urlParams.get('convite') || urlParams.get('chave') || '').trim().toUpperCase();
+  if (paramKey) {
+    state.referralKey = paramKey;
+    localStorage.setItem('endovision_referral_key', paramKey);
+    // Se o usuário já estiver logado mas ainda for free, autoativa na hora
+    if (state.token && state.user && !state.user.is_pro) {
+      activateVipKey(paramKey);
+    } else if (!state.token) {
+      setTimeout(() => {
+        showToast(`Convite da ABO detectado (${paramKey})! Clique em "Entrar / Cadastrar" para liberar seu acesso.`);
+      }, 1200);
+    }
+  }
 
   // ==========================================
   // 4.1 Autenticação e Gestão de Usuário
@@ -659,6 +714,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnLogout) {
     btnLogout.addEventListener('click', () => logoutUser(true));
+  }
+
+  // ==========================================
+  // 4.1.1 Google Sign-In
+  // ==========================================
+  const btnGoogleSignIn = document.getElementById('btnGoogleSignIn');
+
+  async function handleGoogleCredential(credential) {
+    try {
+      showToast('Autenticando com o Google...');
+      const res = await fetch('/api/v1/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credential: credential,
+          referral_key: state.referralKey
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Falha ao autenticar com o Google.');
+      }
+
+      state.token = data.token;
+      state.user = data.user;
+      localStorage.setItem('endovision_token', data.token);
+      localStorage.setItem('endovision_user', JSON.stringify(data.user));
+
+      modalAuth.classList.add('hidden');
+      showToast(`Bem-vindo(a), ${data.user.name}!`);
+      syncUserUI();
+
+      if (state.pendingPlan) {
+        const plan = state.pendingPlan;
+        state.pendingPlan = null;
+        initiateAsaasCheckout(plan);
+      } else if (state.pendingVipKey) {
+        const key = state.pendingVipKey;
+        state.pendingVipKey = null;
+        activateVipKey(key);
+      }
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  }
+
+  if (btnGoogleSignIn) {
+    btnGoogleSignIn.addEventListener('click', () => {
+      // Se a biblioteca Google GIS estiver carregada
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        const clientId = window.GOOGLE_CLIENT_ID || '1083789498234-dummy.apps.googleusercontent.com';
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response) => {
+            if (response.credential) {
+              handleGoogleCredential(response.credential);
+            }
+          }
+        });
+        google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            showToast('Para login Google com 1 clique direto, você também pode preencher e-mail e senha.');
+          }
+        });
+      } else {
+        showToast('Google Sign-In pronto. Você também pode acessar diretamente com seu e-mail e senha.');
+      }
+    });
   }
 
   // ==========================================

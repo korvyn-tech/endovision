@@ -127,3 +127,56 @@ def test_api_auth_endpoints(client):
     # 4. Rota protegida /me sem token
     unauth_res = client.get("/api/v1/auth/me")
     assert unauth_res.status_code == 401
+
+
+def test_activate_vip_key_abo(client):
+    # 1. Registra usuário
+    reg_res = client.post(
+        "/api/v1/auth/register",
+        json={"name": "Dr. Fernando ABO", "email": "fernando@abo.org.br", "password": "senhaforte123"},
+    )
+    token = reg_res.json()["token"]
+    assert reg_res.json()["user"]["is_pro"] is False
+
+    # 2. Ativa chave ABO
+    act_res = client.post(
+        "/api/v1/auth/activate-key",
+        json={"key": "ABOPRO"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert act_res.status_code == 200
+    act_data = act_res.json()
+    assert act_data["user"]["plan"] == "pro_lifetime"
+    assert act_data["user"]["is_pro"] is True
+
+    # 3. Chave inválida retorna 400
+    inv_res = client.post(
+        "/api/v1/auth/activate-key",
+        json={"key": "CHAVE_INEXISTENTE"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert inv_res.status_code == 400
+
+
+def test_google_auth_endpoint(client):
+    from unittest.mock import patch, MagicMock
+
+    mock_google_resp = MagicMock(status_code=200)
+    mock_google_resp.json.return_value = {
+        "email": "dr.marcos.google@clinica.com",
+        "name": "Dr. Marcos Google",
+        "email_verified": "true",
+    }
+
+    with patch("httpx.get", return_value=mock_google_resp):
+        res = client.post(
+            "/api/v1/auth/google",
+            json={"credential": "mock_valid_google_jwt_token", "referral_key": "ABO2026"},
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["user"]["email"] == "dr.marcos.google@clinica.com"
+        assert data["user"]["name"] == "Dr. Marcos Google"
+        assert data["user"]["plan"] == "pro_lifetime"
+        assert data["user"]["is_pro"] is True
+        assert "token" in data

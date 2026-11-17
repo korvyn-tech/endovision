@@ -54,6 +54,15 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1)
 
 
+class ActivateKeyRequest(BaseModel):
+    key: str = Field(..., min_length=3, max_length=50)
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str = Field(..., min_length=10)
+    referral_key: Optional[str] = None
+
+
 class UserProfile(BaseModel):
     id: int
     name: str
